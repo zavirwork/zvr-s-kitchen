@@ -39,7 +39,7 @@ class CartController extends Controller
         session()->put('cart', $cart);
 
         return response()->json([
-            'message' => 'Produk berhasil ditambahkan ke keranjang',
+            'message' => 'Success added to cart',
             'cart_count' => count($cart)
         ]);
     }
@@ -77,7 +77,7 @@ class CartController extends Controller
         $total = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
 
         return response()->json([
-            'message' => 'Item berhasil dihapus dari keranjang.',
+            'message' => 'Deleted from cart.',
             'cart_count' => count($cart),
             'total_formatted' => 'Rp ' . number_format($total, 0, ',', '.'),
         ]);

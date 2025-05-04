@@ -331,31 +331,26 @@
                     </p>
 
                     <ul class="fiter-list">
-
-                        <li>
-                            <button class="filter-btn  active">All</button>
-                        </li>
-
-                        <li>
-                            <button class="filter-btn">Food</button>
-                        </li>
-
-                        <li>
-                            <button class="filter-btn">Drink</button>
-                        </li>
-
+                        <li><a href="{{ url('/') }}"
+                                class="filter-btn {{ empty($type) ? 'active' : '' }}">All</a></li>
+                        <li><a href="{{ url('/?type=food') }}"
+                                class="filter-btn {{ $type === 'food' ? 'active' : '' }}">Food</a></li>
+                        <li><a href="{{ url('/?type=drink') }}"
+                                class="filter-btn {{ $type === 'drink' ? 'active' : '' }}">Drink</a></li>
                     </ul>
 
                     <ul class="food-menu-list">
                         @foreach ($products as $item)
                             <li>
                                 <div class="food-menu-card">
-
-                                    <div class="card-banner">
-                                        <img src="{{ asset('storage/' . $item->images[0]->path) }}" width="300"
-                                            height="300" loading="lazy" alt="Fried Chicken Unlimited"
-                                            class="w-100">
-                                    </div>
+                                    <a href="{{ route('products.show', $item->id) }}"
+                                        style="text-decoration: none; color: inherit;">
+                                        <div class="card-banner">
+                                            <img src="{{ asset('storage/' . $item->images[0]->path) }}"
+                                                width="300" height="300" loading="lazy"
+                                                alt="{{ $item->name }}" class="w-100">
+                                        </div>
+                                    </a>
 
                                     <div class="wrapper">
                                         <p class="category">{{ $item->type }}</p>
@@ -364,18 +359,14 @@
                                     <h3 class="h3 card-title">{{ $item->name }}</h3>
 
                                     <div class="price-wrapper">
-
                                         <p class="price-text">Price:</p>
-
                                         <data class="price">Rp
                                             {{ number_format($item->price, 0, ',', '.') }}</data>
-
-                                        {{-- <del class="del" value="69.00">$69.00</del> --}}
-
                                     </div>
                                     <br>
-                                    <button class="btn btn-primary w-100"
-                                        onclick="addToCart({{ $item->id }}, 1)">Add to Cart</button>
+                                    <button class="btn btn-primary w-100" type="button"
+                                        onclick="event.preventDefault(); addToCart({{ $item->id }}, 1)">Add to
+                                        Cart</button>
                                 </div>
                             </li>
                         @endforeach

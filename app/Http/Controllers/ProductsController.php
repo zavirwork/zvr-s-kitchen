@@ -96,4 +96,10 @@ class ProductsController extends Controller
         $product->delete();
         return redirect()->route('index.products')->with('success', 'Product successfully deleted!');
     }
+
+    public function show($id)
+    {
+        $product = Products::with('images')->findOrFail($id);
+        return view('visitors.detail.index', compact('product'));
+    }
 }

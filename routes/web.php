@@ -8,6 +8,7 @@ use App\Http\Controllers\ProductsController;
 use App\Models\Products;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,9 +21,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    $products = Products::all();
-    return view('welcome', compact('products'));
+Route::get('/', function (Request $request) {
+    $type = $request->query('type');
+
+    $products = $type
+        ? \App\Models\Products::where('type', $type)->get()
+        : \App\Models\Products::all();
+
+    return view('welcome', compact('products', 'type'));
 });
 
 Auth::routes();
@@ -44,7 +50,8 @@ Route::prefix('orders')->middleware('auth')->group(function () {
     Route::get('/orders/{order}', [OrdersController::class, 'show'])->name('show.orders');
 });
 
-// Visitor (cart & checkout)
+// Visitor (cart, detail product & checkout)
+Route::get('/products/{id}', [ProductsController::class, 'show'])->name('products.show');
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
 Route::post('/cart/update-quantity/{id}', [CartController::class, 'updateQuantity']);
