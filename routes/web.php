@@ -37,25 +37,18 @@ Route::prefix('products')->middleware('auth')->group(function () {
     Route::put('/{product}', [ProductsController::class, 'update'])->name('update.products');
     Route::delete('/{product}/delete', [ProductsController::class, 'destroy'])->name('destroy.products');
 });
+// Orders
 Route::prefix('orders')->middleware('auth')->group(function () {
     Route::get('/', [OrdersController::class, 'index'])->name('index.orders');
     Route::put('/{order}/update-status', [OrdersController::class, 'updateStatus'])->name('update_status.orders');
     Route::get('/orders/{order}', [OrdersController::class, 'show'])->name('show.orders');
 });
 
-Route::get('/checkout', function () {
-    $products = \App\Models\Products::all();
-    return view('checkout', compact('products'));
-})->name('checkout.page');
-
-Route::post('/order/store', [OrdersController::class, 'store'])->name('orders.store');
-
+// Visitor (cart & checkout)
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
 Route::post('/cart/update-quantity/{id}', [CartController::class, 'updateQuantity']);
 Route::post('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
-
-Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
-Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+Route::post('/checkout/order', [CheckoutController::class, 'store'])->name('orders.store');
 

@@ -227,6 +227,13 @@
 
     <header class="header" data-header>
         <div class="container">
+            @if (session('success'))
+                <script>
+                    window.onload = function() {
+                        alert("{{ session('success') }}"); // Menampilkan pesan sukses
+                    };
+                </script>
+            @endif
 
             <h1>
                 <a href="#" class="logo">Zavr's<span class="span">Kitchen</span></a>
@@ -255,11 +262,12 @@
             </nav>
 
             <div class="header-btn-group">
-                <a href="javascript:void(0);" onclick="openCartModal()" aria-label="Lihat Keranjang" class="btn btn-hover" data-nav-link style="display: flex; align-items: center;">
+                <a href="javascript:void(0);" onclick="openCartModal()" aria-label="Lihat Keranjang"
+                    class="btn btn-hover" data-nav-link style="display: flex; align-items: center;">
                     <ion-icon name="basket-outline" size="large"></ion-icon>
                     <span class="cart-badge">{{ session('cart') ? count(session('cart')) : 0 }}</span>
                 </a>
-                
+
                 <button class="nav-toggle-btn" aria-label="Toggle Menu" data-menu-toggle-btn>
                     <span class="line top"></span>
                     <span class="line middle"></span>
@@ -698,8 +706,10 @@
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 
-    {{-- cart js --}}
+    {{-- Opern cart modal --}}
     <script>
+        const checkoutUrl = "{{ route('checkout.index') }}";
+
         function openCartModal() {
             const modal = document.getElementById('cartModal');
             const cartContent = document.getElementById('cartContent');
@@ -708,18 +718,33 @@
             fetch('{{ route('cart.index') }}')
                 .then(response => response.text())
                 .then(html => {
-                    // Ambil isi <body> atau khusus bagian cart dari response jika perlu
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
-                    const cartSection = doc.querySelector('#cart-section'); // Buat elemen ini di cart.index
+                    const cartSection = doc.querySelector('#cart-section');
+
                     if (cartSection) {
                         cartContent.innerHTML = cartSection.innerHTML;
+
+                        // Cek apakah ada item
+                        const cartItems = cartSection.querySelectorAll('.cart-item');
+                        if (cartItems.length > 0) {
+                            const checkoutWrapper = document.createElement('div');
+                            checkoutWrapper.style.marginTop = '20px';
+                            checkoutWrapper.innerHTML = `
+                        <a href="${checkoutUrl}">
+                            <button class="btn btn-primary w-30" id="checkoutButton">
+                                Checkout
+                            </button>
+                        </a>
+                    `;
+                            cartContent.appendChild(checkoutWrapper);
+                        }
                     } else {
-                        cartContent.innerHTML = '<p>Keranjang kosong atau gagal dimuat.</p>';
+                        cartContent.innerHTML = '<p>Empty cart or failed to load.</p>';
                     }
                 })
                 .catch(error => {
-                    cartContent.innerHTML = '<p>Gagal memuat isi keranjang.</p>';
+                    cartContent.innerHTML = '<p>Failde to load cart</p>';
                     console.error(error);
                 });
         }
@@ -736,6 +761,7 @@
         }
     </script>
 
+    {{-- Add products to cart --}}
     <script>
         function addToCart(productId, quantity = 1) {
             fetch(`/cart/add/${productId}`, {
@@ -755,7 +781,7 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Gagal menambahkan ke keranjang.');
+                    alert('Failed to add to cart.');
                 });
         }
 
@@ -765,6 +791,7 @@
         }
     </script>
 
+    {{-- Update quantity order --}}
     <script>
         function updateQuantity(productId, change) {
             const qtyInput = document.getElementById(`qty-${productId}`);
@@ -788,12 +815,12 @@
                         document.getElementById(`total-${productId}`).innerText = data.item_total;
                         document.getElementById('cart-total').innerText = data.cart_total;
                     } else {
-                        alert('Gagal mengubah jumlah.');
+                        alert('Failed to update');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Terjadi kesalahan saat memperbarui keranjang.');
+                    alert('Something went wrong');
                 });
         }
     </script>
@@ -821,7 +848,7 @@
                 })
                 .catch(err => {
                     console.error(err);
-                    alert('Gagal menghapus item.');
+                    alert('Failed to delete.');
                 });
         }
     </script>

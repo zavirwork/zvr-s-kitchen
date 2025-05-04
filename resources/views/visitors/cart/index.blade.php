@@ -19,15 +19,15 @@
                 </div>
             
                 <button class="btn-delete" onclick="removeItem({{ $item['id'] }})">
-                    🗑 Hapus
+                    🗑 Delete
                 </button>
             </li>
                       
             @endforeach
         </ul>
 
-        <h3>Total Harga: Rp <span id="cart-total">{{ number_format($total, 0, ',', '.') }}</span></h3>
+        <h3>Total: Rp <span id="cart-total">{{ number_format($total, 0, ',', '.') }}</span></h3>
     @else
-        <p>Keranjang Anda kosong.</p>
+        <p>Empty cart</p>
     @endif
 </div>
