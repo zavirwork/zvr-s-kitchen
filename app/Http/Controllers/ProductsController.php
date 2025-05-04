@@ -69,17 +69,15 @@ class ProductsController extends Controller
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
 
-        // Update data produk
-        $product->update([
-            'name' => $request->name,
-            'type' => $request->type,
-            'description' => $request->description,
-            'price' => $request->price,
-            'stock' => $request->stock,
-        ]);
-
-        // Upload gambar baru (jika ada)
+        // Cek apakah ada gambar baru yang diupload
         if ($request->hasFile('images')) {
+            // Hapus semua gambar lama dari storage dan database
+            foreach ($product->images as $image) {
+                Storage::disk('public')->delete($image->path); // Hapus file fisik
+                $image->delete(); // Hapus dari database
+            }
+
+            // Simpan gambar baru
             foreach ($request->file('images') as $image) {
                 $path = $image->store('products', 'public');
 
@@ -90,11 +88,12 @@ class ProductsController extends Controller
             }
         }
 
-        return redirect()->route('index.products');
+        return redirect()->route('index.products')->with('success', 'Product successfully updated!');
     }
-    
-    public function destroy(Products $product){
+
+    public function destroy(Products $product)
+    {
         $product->delete();
-        return redirect()->route('index.products');
+        return redirect()->route('index.products')->with('success', 'Product successfully deleted!');
     }
 }

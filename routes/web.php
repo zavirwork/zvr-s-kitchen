@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrdersController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductsController;
+use App\Models\Products;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -18,7 +21,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    $products = Products::all();
+    return view('welcome', compact('products'));
 });
 
 Auth::routes();
@@ -45,3 +49,13 @@ Route::get('/checkout', function () {
 })->name('checkout.page');
 
 Route::post('/order/store', [OrdersController::class, 'store'])->name('orders.store');
+
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
+Route::post('/cart/update-quantity/{id}', [CartController::class, 'updateQuantity']);
+Route::post('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+
+Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
+Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+
