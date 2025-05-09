@@ -236,7 +236,7 @@
             @endif
 
             <h1>
-                <a href="#" class="logo">Zavr's<span class="span">Kitchen</span></a>
+                <a href="#" class="logo">Zvr's<span class="span">Kitchen</span></a>
             </h1>
 
             <nav class="navbar" data-navbar>
