@@ -35,19 +35,31 @@ Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 // Products
-Route::prefix('products')->middleware('auth')->group(function () {
-    Route::get('/', [ProductsController::class, 'index'])->name('index.products');
-    Route::get('/create', [ProductsController::class, 'create'])->name('create.products');
-    Route::post('/store', [ProductsController::class, 'store'])->name('store.products');
-    Route::get('/{product}/edit', [ProductsController::class, 'edit'])->name('edit.products');
-    Route::put('/{product}', [ProductsController::class, 'update'])->name('update.products');
-    Route::delete('/{product}/delete', [ProductsController::class, 'destroy'])->name('destroy.products');
+
+Route::group(['middleware' => ['auth']], function () {
+    Route::group(['middleware' => ['logincheck:admin']], function () {
+        Route::prefix('products')->middleware('auth')->group(function () {
+            Route::get('/', [ProductsController::class, 'index'])->name('index.products');
+            Route::get('/create', [ProductsController::class, 'create'])->name('create.products');
+            Route::post('/store', [ProductsController::class, 'store'])->name('store.products');
+            Route::get('/{product}/edit', [ProductsController::class, 'edit'])->name('edit.products');
+            Route::put('/{product}', [ProductsController::class, 'update'])->name('update.products');
+            Route::delete('/{product}/delete', [ProductsController::class, 'destroy'])->name('destroy.products');
+        });
+        // Orders
+        Route::prefix('orders')->middleware('auth')->group(function () {
+            Route::get('/', [OrdersController::class, 'index'])->name('index.orders');
+            Route::put('/{order}/update-status', [OrdersController::class, 'updateStatus'])->name('update_status.orders');
+            Route::get('/orders/{order}', [OrdersController::class, 'show'])->name('show.orders');
+        });
+    });
 });
-// Orders
-Route::prefix('orders')->middleware('auth')->group(function () {
-    Route::get('/', [OrdersController::class, 'index'])->name('index.orders');
-    Route::put('/{order}/update-status', [OrdersController::class, 'updateStatus'])->name('update_status.orders');
-    Route::get('/orders/{order}', [OrdersController::class, 'show'])->name('show.orders');
+
+// User
+Route::group(['middleware' => ['auth']], function () {
+    Route::group(['middleware' => ['logincheck:user']], function () {
+        
+    });
 });
 
 // Visitor (cart, detail product & checkout)
@@ -58,4 +70,3 @@ Route::post('/cart/update-quantity/{id}', [CartController::class, 'updateQuantit
 Route::post('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout/order', [CheckoutController::class, 'store'])->name('orders.store');
-
