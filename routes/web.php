@@ -3,9 +3,7 @@
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrdersController;
-use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductsController;
-use App\Models\Products;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
@@ -23,46 +21,68 @@ use Illuminate\Http\Request;
 
 Route::get('/', function (Request $request) {
     $type = $request->query('type');
-
     $products = $type
         ? \App\Models\Products::where('type', $type)->get()
         : \App\Models\Products::all();
-
     return view('welcome', compact('products', 'type'));
 });
 
 Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-// Products
-
-Route::group(['middleware' => ['auth']], function () {
-    Route::group(['middleware' => ['logincheck:admin']], function () {
-        Route::prefix('products')->middleware('auth')->group(function () {
-            Route::get('/', [ProductsController::class, 'index'])->name('index.products');
-            Route::get('/create', [ProductsController::class, 'create'])->name('create.products');
-            Route::post('/store', [ProductsController::class, 'store'])->name('store.products');
-            Route::get('/{product}/edit', [ProductsController::class, 'edit'])->name('edit.products');
-            Route::put('/{product}', [ProductsController::class, 'update'])->name('update.products');
-            Route::delete('/{product}/delete', [ProductsController::class, 'destroy'])->name('destroy.products');
-        });
-        // Orders
-        Route::prefix('orders')->middleware('auth')->group(function () {
-            Route::get('/', [OrdersController::class, 'index'])->name('index.orders');
-            Route::put('/{order}/update-status', [OrdersController::class, 'updateStatus'])->name('update_status.orders');
-            Route::get('/orders/{order}', [OrdersController::class, 'show'])->name('show.orders');
-        });
+// Route untuk semua authenticated user (admin & user biasa)
+Route::middleware('auth')->group(function () {
+    // Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+    
+    // Dashboard berdasarkan role
+    Route::get('/dashboard', function () {
+        if (auth()->user()->role === 'admin') {
+            return redirect()->route('admin.dashboard');
+        }
+        return redirect()->route('user.dashboard');
     });
 });
 
-// User
-Route::group(['middleware' => ['auth']], function () {
-    Route::group(['middleware' => ['logincheck:user']], function () {
-        
+// ======================
+// ADMIN ROUTES
+// ======================
+Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
+    // Admin Dashboard
+    Route::get('/dashboard', function () {
+        return view('admin.index');
+    })->name('admin.dashboard');
+    
+    // Products Management
+    Route::prefix('products')->group(function () {
+        Route::get('/', [ProductsController::class, 'index'])->name('admin.products.index');
+        Route::get('/create', [ProductsController::class, 'create'])->name('admin.products.create');
+        Route::post('/store', [ProductsController::class, 'store'])->name('admin.products.store');
+        Route::get('/{product}/edit', [ProductsController::class, 'edit'])->name('admin.products.edit');
+        Route::put('/{product}', [ProductsController::class, 'update'])->name('admin.products.update');
+        Route::delete('/{product}/delete', [ProductsController::class, 'destroy'])->name('admin.products.destroy');
+    });
+    
+    // Orders Management
+    Route::prefix('orders')->group(function () {
+        Route::get('/', [OrdersController::class, 'index'])->name('admin.orders.index');
+        Route::put('/{order}/update-status', [OrdersController::class, 'updateStatus'])->name('admin.orders.update_status');
+        Route::get('/{order}', [OrdersController::class, 'show'])->name('admin.orders.show');
     });
 });
 
-// Visitor (cart, detail product & checkout)
+// ======================
+// USER ROUTES (Pelanggan)
+// ======================
+Route::prefix('user')->middleware(['auth', 'role:user'])->group(function () {
+    // User Dashboard
+    Route::get('/dashboard', function () {
+        return view('user.index');
+    })->name('user.dashboard');
+    
+});
+
+// ======================
+// VISITOR ROUTES (Tidak perlu login)
+// ======================
 Route::get('/products/{id}', [ProductsController::class, 'show'])->name('products.show');
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');

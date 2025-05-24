@@ -7,7 +7,7 @@
                 <div class="card mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h6>Products Table</h6>
-                        <a href="{{ route('create.products') }}" class="btn btn-sm btn-dark">
+                        <a href="{{ route('admin.products.create') }}" class="btn btn-sm btn-dark">
                             <i class="fas fa-plus"></i> Add Product
                         </a>
                     </div>
@@ -57,8 +57,8 @@
                                                 @endif
                                             </td>
                                             <td class="text-center">
-                                                <a href="{{route('edit.products', $product->id)}}" class="btn btn-sm btn-info">Edit</a>
-                                                <a href="#" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" onclick="setDeleteAction('{{ route('destroy.products', $product->id) }}')">Delete</a>                                               
+                                                <a href="{{route('admin.products.edit', $product->id)}}" class="btn btn-sm btn-info">Edit</a>
+                                                <a href="#" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" onclick="setDeleteAction('{{ route('admin.products.destroy', $product->id) }}')">Delete</a>                                               
                                             </td>
                                         </tr>
                                     @empty
