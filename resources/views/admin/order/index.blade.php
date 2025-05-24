@@ -79,7 +79,7 @@
                                                     <ul class="dropdown-menu dropdown-menu-end">
                                                         <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
                                                                 data-bs-target="#seeOrderModal"
-                                                                data-order-url="{{ route('show.orders', $order->id) }}">
+                                                                data-order-url="{{ route('admin.orders.show', $order->id) }}">
                                                                 See
                                                             </a>
 
@@ -115,7 +115,7 @@
                                             aria-labelledby="updateModalLabel{{ $order->id }}" aria-hidden="true">
                                             <div class="modal-dialog">
                                                 <div class="modal-content">
-                                                    <form action="{{ route('update_status.orders', $order->id) }}"
+                                                    <form action="{{ route('admin.orders.update_status', $order->id) }}"
                                                         method="POST">
                                                         @csrf
                                                         @method('PUT')

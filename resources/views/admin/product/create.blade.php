@@ -9,7 +9,7 @@
                         <h6 class="mb-0">Add Product</h6>
                     </div>
                     <div class="card-body">
-                        <form action="{{ route('store.products') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="row">
                                 <div class="col-md-6 mb-3">

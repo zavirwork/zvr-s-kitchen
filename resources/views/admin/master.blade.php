@@ -204,6 +204,9 @@
     </script>
     {{-- Notyf --}}
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+    <script>
+        
+    </script>
     @yield('script')
 </body>
 

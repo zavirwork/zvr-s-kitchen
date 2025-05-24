@@ -32,7 +32,7 @@ class OrdersController extends Controller
         $order->save();
 
         // Redirect kembali dengan pesan sukses
-        return redirect()->route('index.orders')->with('success', 'Order status successfully updated!');
+        return redirect()->route('admin.orders.index')->with('success', 'Order status successfully updated!');
     }
 
     public function show(Order $order)

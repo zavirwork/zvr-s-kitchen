@@ -4,6 +4,8 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrdersController;
 use App\Http\Controllers\ProductsController;
+use App\Http\Controllers\ProfileController;
+use App\Models\Profile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
@@ -75,8 +77,13 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
 Route::prefix('user')->middleware(['auth', 'role:user'])->group(function () {
     // User Dashboard
     Route::get('/dashboard', function () {
-        return view('user.index');
+        $profile = Profile::where('user_id', auth()->id())->first();
+        return view('user.index', compact('profile'));
     })->name('user.dashboard');
+
+    // Profile
+    Route::post('/profile', [ProfileController::class, 'store'])->name('user.profile.store');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('user.profile.update');
     
 });
 
