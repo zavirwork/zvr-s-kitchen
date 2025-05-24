@@ -49,7 +49,7 @@ class ProductsController extends Controller
             }
         }
 
-        return redirect()->route('index.products')->with('success', 'Product successfully added!');
+        return redirect()->route('admin.products.index')->with('success', 'Product successfully added!');
     }
 
     public function edit(Products $product)
@@ -88,13 +88,13 @@ class ProductsController extends Controller
             }
         }
 
-        return redirect()->route('index.products')->with('success', 'Product successfully updated!');
+        return redirect()->route('admin.products.index')->with('success', 'Product successfully updated!');
     }
 
     public function destroy(Products $product)
     {
         $product->delete();
-        return redirect()->route('index.products')->with('success', 'Product successfully deleted!');
+        return redirect()->route('admin.products.index')->with('success', 'Product successfully deleted!');
     }
 
     public function show($id)
