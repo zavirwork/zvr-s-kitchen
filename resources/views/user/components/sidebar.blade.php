@@ -9,31 +9,13 @@
     <hr class="horizontal dark mt-0">
     <ul class="navbar-nav">
       <li class="nav-item">
-        <a class="nav-link {{ Request::is('admin/dashboard') ? 'active' : '' }}" href="{{route('admin.dashboard')}}">
+        <a class="nav-link {{ Request::is('user/dashboard') ? 'active' : '' }}" href="{{route('user.dashboard')}}">
           <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
             <i class="ni ni-chart-bar-32 text-dark text-sm opacity-10"></i>
           </div>
           <span class="nav-link-text ms-1">Dashboard</span>
         </a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link {{ Request::is('admin/products') ? 'active' : '' }}" href="{{ route('admin.products.index') }}">
-          <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-            <i class="ni ni-app text-dark text-sm opacity-10"></i>
-          </div>
-          <span class="nav-link-text ms-1">Products</span>
-        </a>
-      </li>
-      
-      <li class="nav-item">
-        <a class="nav-link {{ Request::is('admin/orders') ? 'active' : '' }}" href="{{ route('admin.orders.index') }}">
-          <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-            <i class="ni ni-cart text-dark text-sm opacity-10"></i>
-          </div>
-          <span class="nav-link-text ms-1">Orders</span>
-        </a>
-      </li>
-      
     </ul>
     
   </aside>
