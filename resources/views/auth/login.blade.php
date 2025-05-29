@@ -144,7 +144,7 @@
                                         </div>
                                     </form>
                                     <br>
-                                    <small>Don't have an account? <a href="{{route('register')}}">Register Now</a></small>
+                                    <small>Don't have an account? <a href="{{route('register')}}"><b>Register Now</b></a></small>
                                 </div>
                             </div>
                         </div>

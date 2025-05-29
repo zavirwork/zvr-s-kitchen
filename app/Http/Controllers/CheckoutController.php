@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Products;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
@@ -42,6 +43,7 @@ class CheckoutController extends Controller
 
             // Simpan order beserta pesan tambahan
             $order = Order::create([
+                'user_id' => Auth::check() ? Auth::id() : null,
                 'customer_name' => $request->customer_name,
                 'customer_whatsapp' => $request->customer_whatsapp,
                 'message' => $request->message ?? '-',
