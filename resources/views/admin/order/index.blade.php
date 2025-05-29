@@ -31,6 +31,12 @@
                                             Status</th>
                                         <th
                                             class="text-uppercase text-secondary text-xs font-weight-bolder text-center align-middle">
+                                            Maps</th>
+                                        <th
+                                            class="text-uppercase text-secondary text-xs font-weight-bolder text-center align-middle">
+                                            Evidence</th>
+                                        <th
+                                            class="text-uppercase text-secondary text-xs font-weight-bolder text-center align-middle">
                                             Action</th>
                                     </tr>
                                 </thead>
@@ -39,8 +45,10 @@
                                         <tr>
                                             <td class="text-center align-middle text-sm">{{ $loop->iteration }}</td>
                                             <td class="text-center align-middle text-sm">{{ $order->customer_name }}</td>
-                                            <td class="text-center align-middle text-sm"><a href="https://wa.me/{{ $order->customer_whatsapp }}"><i class="ni ni-send"></i>
-                                              {{ $order->customer_whatsapp }}</a></td>
+                                            <td class="text-center align-middle text-sm"><a
+                                                    href="https://wa.me/{{ $order->customer_whatsapp }}"><i
+                                                        class="ni ni-send"></i>
+                                                    {{ $order->customer_whatsapp }}</a></td>
                                             <td class="text-center align-middle text-sm">Rp.{{ $order->total_price }}</td>
                                             <td class="text-center align-middle text-sm">
                                                 @php
@@ -69,6 +77,28 @@
                                                 <span
                                                     class="badge badge-sm {{ $badgeClass }}">{{ ucfirst($order->status) }}</span>
 
+                                            </td>
+                                            <td>
+                                                @if ($order->latitude && $order->longitude)
+                                                    <center>
+                                                        <a href="https://www.google.com/maps?q={{ $order->latitude }},{{ $order->longitude }}"
+                                                            target="_blank" class="btn btn-sm btn-outline-primary mt-2">
+                                                            View Map
+                                                        </a>
+                                                    </center>
+                                                @else
+                                                    <span class="text-muted">No Location</span>
+                                                @endif
+                                            </td>
+                                            <td class="text-center align-middle text-sm">
+                                                @if ($order->evidence_transfer)
+                                                    <a href="{{ asset('storage/' . $order->evidence_transfer) }}"
+                                                        target="_blank" class="btn btn-sm btn-outline-success mt-2">
+                                                        View
+                                                    </a>
+                                                @else
+                                                    <span class="text-muted">No File</span>
+                                                @endif
                                             </td>
                                             <td class="text-center align-middle text-sm">
                                                 <div class="dropdown">

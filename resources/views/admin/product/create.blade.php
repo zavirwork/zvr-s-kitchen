@@ -42,7 +42,7 @@
 
                                 <div class="col-12 mb-4">
                                     <label for="images" class="form-label">Image</label>
-                                    <input type="file" name="images[]" class="form-control" multiple>
+                                    <input type="file" name="images[]" class="form-control" multiple required>
                                     <small class="text-muted">You can select more than one image</small>
                                 </div>
 

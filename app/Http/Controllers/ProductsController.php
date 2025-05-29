@@ -28,7 +28,7 @@ class ProductsController extends Controller
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
-            'images' => 'nullable|array|max:5',
+            'images' => 'required|array|max:5',
         ]);
 
         $product = Products::create([

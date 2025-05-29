@@ -33,6 +33,11 @@
 
                         <h2 class="section-title">Customer</h2>
 
+                        <div class="form-group">
+                            <input type="hidden" name="user_id" required class="input-field"
+                            value="{{ auth()->check() ? auth()->user()->id : '' }}">
+                        </div>
+                        
                         {{-- Nama --}}
                         <div class="form-group">
                             <label for="customer_name">Name</label>
