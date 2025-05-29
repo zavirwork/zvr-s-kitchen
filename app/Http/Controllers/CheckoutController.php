@@ -13,7 +13,7 @@ class CheckoutController extends Controller
 {
     public function index()
     {
-        $cart = session('cart', []); // atau ambil dari database sesuai kebutuhan
+        $cart = session('cart', []);
         $total = collect($cart)->sum(function ($item) {
             return $item['price'] * $item['quantity'];
         });
@@ -29,10 +29,17 @@ class CheckoutController extends Controller
             'cart' => 'required|array',
             'cart.*.product_id' => 'required|exists:products,id',
             'cart.*.quantity' => 'required|integer|min:1',
+            'customer_location' => 'required|string',
+            'evidence_transfer' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
+
+        // Pisahkan lat dan long
+        [$lat, $long] = explode(',', $request->customer_location . ',');
+        $path = $request->file('evidence_transfer')->store('evidence_transfers', 'public');
 
         DB::beginTransaction();  // Mulai transaksi DB
         try {
+
             // Simpan order beserta pesan tambahan
             $order = Order::create([
                 'customer_name' => $request->customer_name,
@@ -40,6 +47,9 @@ class CheckoutController extends Controller
                 'message' => $request->message ?? '-',
                 'total_price' => 0,
                 'status' => 'pending',
+                'latitude' => trim($lat),
+                'longitude' => trim($long),
+                'evidence_transfer' => $path,
             ]);
 
             $itemsData = [];

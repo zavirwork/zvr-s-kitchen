@@ -143,6 +143,8 @@
                                                 class="btn btn-lg btn-primary btn-lg w-100 mt-4 mb-0">Login</button>
                                         </div>
                                     </form>
+                                    <br>
+                                    <small>Don't have an account? <a href="{{route('register')}}">Register Now</a></small>
                                 </div>
                             </div>
                         </div>
