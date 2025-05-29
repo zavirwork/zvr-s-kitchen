@@ -29,7 +29,7 @@ class RegisterController extends Controller
         if ($user->role === 'admin') {
             return redirect()->route('admin.dashboard');
         }
-        return redirect()->route('user.dashboard');
+        return redirect('/')->with('success', 'Login successfully');
     }
 
     /**
@@ -52,6 +52,7 @@ class RegisterController extends Controller
     {
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
+            'user_whatsapp' => ['required', 'string', 'max:15'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
@@ -68,6 +69,7 @@ class RegisterController extends Controller
         return User::create([
             'name' => $data['name'],
             'email' => $data['email'],
+            'user_whatsapp' => $data['user_whatsapp'],
             'password' => Hash::make($data['password']),
             'role' => 'user'
         ]);

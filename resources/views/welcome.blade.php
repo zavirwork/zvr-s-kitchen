@@ -251,13 +251,23 @@
                     </li>
 
                     <li class="nav-item">
-                        <a href="#delivery-food" class="navbar-link" data-nav-link>Delivery</a>
-                    </li>
-
-                    <li class="nav-item">
                         <a href="#testimoni" class="navbar-link" data-nav-link>Testimonials</a>
                     </li>
 
+                    <li class="nav-item">
+                        @guest
+                            <a href="{{ route('login') }}" class="navbar-link"><u>Login</u></a>
+                        @endguest
+
+                        @auth
+                            @php
+                                $dashboardRoute = Auth::user()->role === 'admin' ? 'admin.dashboard' : 'user.dashboard';
+                            @endphp
+                            <a href="{{ route($dashboardRoute) }}" class="navbar-link">
+                                <u>{{ Auth::user()->name }}</u>
+                            </a>
+                        @endauth
+                    </li>
                 </ul>
             </nav>
 
@@ -303,8 +313,8 @@
                     </div>
 
                     <figure class="hero-banner">
-                        <img src="{{ asset('assets-visitor/images/hero-banner-bg.png') }}" width="820" height="716"
-                            alt="" aria-hidden="true" class="w-100 hero-img-bg">
+                        <img src="{{ asset('assets-visitor/images/hero-banner-bg.png') }}" width="820"
+                            height="716" alt="" aria-hidden="true" class="w-100 hero-img-bg">
 
                         <img src="{{ asset('assets-visitor/images/hero-banner.png') }}" width="700" height="637"
                             loading="lazy" alt="Burger" class="w-100 hero-img">
@@ -405,41 +415,6 @@
 
                         <img src="{{ asset('assets-visitor/images/sale-shape.png') }}" width="216" height="226"
                             loading="lazy" alt="get up to 50% off now" class="abs-img scale-up-anim">
-                    </figure>
-
-                </div>
-            </section>
-
-            <!--
-        - #DELIVERY
-      -->
-
-            <section class="section section-divider gray delivery" id="delivery-food">
-                <div class="container">
-
-                    <div class="delivery-content">
-
-                        <h2 class="h2 section-title">
-                            A Moments Of Delivered On <span class="span">Right Time</span> & Place
-                        </h2>
-
-                        <p class="section-text">
-                            The restaurants in Hangzhou also catered to many northern Chinese who had fled south from
-                            Kaifeng during
-                            the Jurchen
-                            invasion of the 1120s, while it is also known that many restaurants were run by families.
-                        </p>
-
-                        <button class="btn btn-hover">Order Now</button>
-                    </div>
-
-                    <figure class="delivery-banner">
-                        <img src="{{ asset('assets-visitor/images/delivery-banner-bg.png') }}" width="700"
-                            height="602" loading="lazy" alt="clouds" class="w-100">
-
-                        <img src="{{ asset('assets-visitor/images/delivery-boy.svg') }}" width="1000"
-                            height="880" loading="lazy" alt="delivery boy" class="w-100 delivery-img"
-                            data-delivery-boy>
                     </figure>
 
                 </div>

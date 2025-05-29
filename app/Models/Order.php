@@ -14,8 +14,11 @@ class Order extends Model
         'customer_name',
         'customer_whatsapp',
         'message',
+        'evidence_transfer',
         'total_price',
         'status',
+        'latitude',
+        'longitude',
     ];
 
     public function items()

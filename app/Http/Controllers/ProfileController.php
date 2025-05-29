@@ -18,11 +18,6 @@ class ProfileController extends Controller
 
         // Find id 
         $user_id = Auth::user()->id;
-        $profile = Profile::create([
-            'name' => $request->name,
-            'whatsapp' => $request->whatsapp,
-            'user_id' => $user_id,
-        ]);
 
         return redirect()->route('user.dashboard');
     }
@@ -31,12 +26,14 @@ class ProfileController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'whatsapp' => 'required',
+            'user_whatsapp' => 'required|string|max:20',
         ]);
 
-        $profile = Profile::where('user_id', auth()->id())->first();
-        $profile->update($request->only(['name', 'whatsapp']));
+        $user = Auth::user();
+        $user->name = $request->name;
+        $user->user_whatsapp = $request->user_whatsapp;
+        $user->save();
 
-        return redirect()->route('user.dashboard');
+        return redirect()->route('user.dashboard')->with('success', 'Profil berhasil diperbarui.');
     }
 }
