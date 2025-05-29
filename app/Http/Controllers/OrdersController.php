@@ -19,21 +19,55 @@ class OrdersController extends Controller
 
     public function updateStatus(Request $request, $orderId)
     {
-        // Validasi status yang dikirim
         $request->validate([
             'status' => 'required|in:pending,confirmed,shipped,completed,cancelled',
         ]);
 
-        // Cari pesanan berdasarkan ID
         $order = Order::findOrFail($orderId);
 
-        // Update status pesanan
         $order->status = $request->status;
         $order->save();
 
-        // Redirect kembali dengan pesan sukses
-        return redirect()->route('admin.orders.index')->with('success', 'Order status successfully updated!');
+        // Kirim pesan via Fonnte
+        $apiKey = env('FONNTE_API_KEY');
+        $phone = $order->customer_whatsapp;
+        $name = $order->customer_name;
+        $status = ucfirst($order->status);
+
+        $message = "Halo {$name},\n\nStatus pesanan Anda (ID: #{$order->id}) telah berubah menjadi *{$status}*.\nTerima kasih telah berbelanja di toko kami!";
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, [
+            CURLOPT_URL => 'https://api.fonnte.com/send',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => [
+                'target' => $phone,
+                'message' => $message,
+                'delay' => 2,
+                'countryCode' => '62',
+            ],
+            CURLOPT_HTTPHEADER => [
+                'Authorization: ' . $apiKey,
+            ],
+        ]);
+
+        $response = curl_exec($curl);
+
+        if (curl_errno($curl)) {
+            dd('Fonnte error: ' . curl_error($curl));
+        }
+
+        curl_close($curl);
+        return redirect()->route('admin.orders.index')->with('success', 'Order status updated and WhatsApp notification sent!');
     }
+
 
     public function show(Order $order)
     {
