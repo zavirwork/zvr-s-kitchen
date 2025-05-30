@@ -205,8 +205,18 @@
     {{-- Notyf --}}
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <script>
-        
+        function openTawkWindow() {
+            const url = "https://dashboard.tawk.to/login";
+            const width = 800;
+            const height = 600;
+            const left = (screen.width - width) / 2;
+            const top = (screen.height - height) / 2;
+
+            window.open(url, "TawkToChat",
+                `width=${width},height=${height},top=${top},left=${left},resizable=yes,scrollbars=yes`);
+        }
     </script>
+
     @yield('script')
 </body>
 
