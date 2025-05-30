@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrdersController;
@@ -50,10 +51,8 @@ Route::middleware('auth')->group(function () {
 // ======================
 Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     // Admin Dashboard
-    Route::get('/dashboard', function () {
-        return view('admin.index');
-    })->name('admin.dashboard');
-    
+    Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+
     // Products Management
     Route::prefix('products')->group(function () {
         Route::get('/', [ProductsController::class, 'index'])->name('admin.products.index');
@@ -63,7 +62,7 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
         Route::put('/{product}', [ProductsController::class, 'update'])->name('admin.products.update');
         Route::delete('/{product}/delete', [ProductsController::class, 'destroy'])->name('admin.products.destroy');
     });
-    
+
     // Orders Management
     Route::prefix('orders')->group(function () {
         Route::get('/', [OrdersController::class, 'index'])->name('admin.orders.index');
@@ -90,7 +89,7 @@ Route::prefix('user')->middleware(['auth', 'role:user'])->group(function () {
     Route::get('/orders', [UserOrdersController::class, 'index'])->name('user.orders.index');
     Route::get('/orders/{id}', [UserOrdersController::class, 'show'])->name('user.orders.show');
 
-    
+
     Route::post('/orders/{order}/rate', [RatingController::class, 'store'])->name('user.orders.rate');
 });
 
