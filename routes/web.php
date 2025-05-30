@@ -5,6 +5,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrdersController;
 use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RatingController;
 use App\Http\Controllers\UserOrdersController;
 use App\Models\Profile;
 use Illuminate\Support\Facades\Auth;
@@ -86,9 +87,12 @@ Route::prefix('user')->middleware(['auth', 'role:user'])->group(function () {
     Route::post('/profile', [ProfileController::class, 'store'])->name('user.profile.store');
     Route::put('/profile', [ProfileController::class, 'update'])->name('user.profile.update');
 
+    // Order
     Route::get('/orders', [UserOrdersController::class, 'index'])->name('user.orders.index');
     Route::get('/orders/{id}', [UserOrdersController::class, 'show'])->name('user.orders.show');
+
     
+    Route::post('/orders/{order}/rate', [RatingController::class, 'store'])->name('user.orders.rate');
 });
 
 // ======================

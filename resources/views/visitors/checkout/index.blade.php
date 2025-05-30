@@ -62,7 +62,7 @@
                         {{-- Lokasi --}}
                         <div class="form-group">
                             <label for="customer_location">Lokasi Anda (Otomatis)</label>
-                            <input type="text" id="customer_location" name="customer_location"
+                            <input type="text" id="customer_location" readonly name="customer_location"
                                    class="input-field" required>
                         </div>
 
