@@ -28,15 +28,14 @@ Route::get('/', function (Request $request) {
     $products = $type
         ? \App\Models\Products::where('type', $type)->get()
         : \App\Models\Products::all();
-    return view('welcome', compact('products', 'type'));
+    $testimoni = \App\Models\Rating::latest()->paginate(5);
+    return view('welcome', compact('products', 'type', 'testimoni'));
 });
 
 Auth::routes();
 
 // Route untuk semua authenticated user (admin & user biasa)
 Route::middleware('auth')->group(function () {
-    // Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-    
     // Dashboard berdasarkan role
     Route::get('/dashboard', function () {
         if (auth()->user()->role === 'admin') {

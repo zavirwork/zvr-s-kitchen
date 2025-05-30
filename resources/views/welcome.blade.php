@@ -439,111 +439,39 @@
                     </p>
 
                     <ul class="testi-list has-scrollbar">
+                        @foreach ($testimoni as $item)
+                            <li class="testi-item">
+                                <div class="testi-card">
 
-                        <li class="testi-item">
-                            <div class="testi-card">
+                                    {{-- Profile --}}
+                                    <div class="profile-wrapper">
+                                        <figure class="avatar">
+                                            <img src="{{ asset('assets-visitor/images/user.png') }}"
+                                                width="80" height="80" loading="lazy"
+                                                alt="{{ $item->user->name }}">
+                                        </figure>
 
-                                <div class="profile-wrapper">
+                                        <div>
+                                            <h3 class="h4 testi-name">{{ $item->user->name }}</h3>
+                                        </div>
+                                    </div>
 
-                                    <figure class="avatar">
-                                        <img src="{{ asset('assets-visitor/images/avatar-1.jpg') }}" width="80"
-                                            height="80" loading="lazy" alt="Robert William">
-                                    </figure>
+                                    {{-- Review --}}
+                                    <blockquote class="testi-text">
+                                        "{{ $item->review }}"
+                                    </blockquote>
 
-                                    <div>
-                                        <h3 class="h4 testi-name">Robert William</h3>
-
-                                        <p class="testi-title">CEO Kingfisher</p>
+                                    {{-- Rating Stars --}}
+                                    <div class="rating-wrapper">
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            <ion-icon name="star"
+                                                style="color: {{ $i <= $item->rating ? '#ffc107' : '#e4e5e9' }}"></ion-icon>
+                                        @endfor
                                     </div>
 
                                 </div>
-
-                                <blockquote class="testi-text">
-                                    "I would be lost without restaurant. I would like to personally thank you for your
-                                    outstanding
-                                    product."
-                                </blockquote>
-
-                                <div class="rating-wrapper">
-                                    <ion-icon name="star"></ion-icon>
-                                    <ion-icon name="star"></ion-icon>
-                                    <ion-icon name="star"></ion-icon>
-                                    <ion-icon name="star"></ion-icon>
-                                    <ion-icon name="star"></ion-icon>
-                                </div>
-
-                            </div>
-                        </li>
-
-                        <li class="testi-item">
-                            <div class="testi-card">
-
-                                <div class="profile-wrapper">
-
-                                    <figure class="avatar">
-                                        <img src="{{ asset('assets-visitor/images/avatar-2.jpg') }}" width="80"
-                                            height="80" loading="lazy" alt="Thomas Josef">
-                                    </figure>
-
-                                    <div>
-                                        <h3 class="h4 testi-name">Thomas Josef</h3>
-
-                                        <p class="testi-title">CEO Getforce</p>
-                                    </div>
-
-                                </div>
-
-                                <blockquote class="testi-text">
-                                    "I would be lost without restaurant. I would like to personally thank you for your
-                                    outstanding
-                                    product."
-                                </blockquote>
-
-                                <div class="rating-wrapper">
-                                    <ion-icon name="star"></ion-icon>
-                                    <ion-icon name="star"></ion-icon>
-                                    <ion-icon name="star"></ion-icon>
-                                    <ion-icon name="star"></ion-icon>
-                                    <ion-icon name="star"></ion-icon>
-                                </div>
-
-                            </div>
-                        </li>
-
-                        <li class="testi-item">
-                            <div class="testi-card">
-
-                                <div class="profile-wrapper">
-
-                                    <figure class="avatar">
-                                        <img src="{{ asset('assets-visitor/images/avatar-3.jpg') }}" width="80"
-                                            height="80" loading="lazy" alt="Charles Richard">
-                                    </figure>
-
-                                    <div>
-                                        <h3 class="h4 testi-name">Charles Richard</h3>
-
-                                        <p class="testi-title">CEO Angela</p>
-                                    </div>
-
-                                </div>
-
-                                <blockquote class="testi-text">
-                                    "I would be lost without restaurant. I would like to personally thank you for your
-                                    outstanding
-                                    product."
-                                </blockquote>
-
-                                <div class="rating-wrapper">
-                                    <ion-icon name="star"></ion-icon>
-                                    <ion-icon name="star"></ion-icon>
-                                    <ion-icon name="star"></ion-icon>
-                                    <ion-icon name="star"></ion-icon>
-                                    <ion-icon name="star"></ion-icon>
-                                </div>
-
-                            </div>
-                        </li>
+                            </li>
+                        @endforeach
 
                     </ul>
 
