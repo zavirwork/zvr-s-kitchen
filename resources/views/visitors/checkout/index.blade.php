@@ -57,6 +57,7 @@
                             <label for="evidence_transfer">Upload Bukti Transfer</label>
                             <input type="file" name="evidence_transfer" class="input-field"
                                    accept="image/*,application/pdf" required>
+                                   <small>1234567890 (Bank BNI)</small>
                         </div>
 
                         {{-- Lokasi --}}
