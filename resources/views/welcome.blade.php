@@ -501,7 +501,7 @@
 
                 <div class="footer-brand">
 
-                    <a href="" class="logo">Zavr's<span class="span">Kitchen</span></a>
+                    <a href="" class="logo">Zvr's<span class="span">Kitchen</span></a>
 
                     <p class="footer-text">
                         Financial experts support or help you to to find out which way you can raise your funds more.
@@ -544,15 +544,15 @@
                     </li>
 
                     <li>
-                        <p class="footer-list-item">+1 (062) 109-9222</p>
+                        <p class="footer-list-item"> (+62) 819-3413-1038</p>
                     </li>
 
                     <li>
-                        <p class="footer-list-item">Info@YourGmail24.com</p>
+                        <p class="footer-list-item">kitchenzvrs@gmail.com</p>
                     </li>
 
                     <li>
-                        <address class="footer-list-item">153 Williamson Plaza, Maggieberg, MT 09514</address>
+                        <address class="footer-list-item">JL. Musi No. 48, RT04/RW01, Kel. Penganjuran, Kec. Banyuwangi, Kab. Banyuwangi</address>
                     </li>
 
                 </ul>
@@ -564,7 +564,7 @@
                     </li>
 
                     <li>
-                        <p class="footer-list-item">Monday-Friday: 08:00-22:00</p>
+                        <p class="footer-list-item">Monday-Friday: 09:00-22:00</p>
                     </li>
 
                     <li>
