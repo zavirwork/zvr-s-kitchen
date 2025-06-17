@@ -19,12 +19,14 @@ class OrdersController extends Controller
 
     public function updateStatus(Request $request, $orderId)
     {
+        // Ambil data status
         $request->validate([
             'status' => 'required|in:pending,confirmed,shipped,completed,cancelled',
         ]);
-
+        // ambil id order dan cari di tabel order
         $order = Order::findOrFail($orderId);
 
+        // ambil status yang diubah 
         $order->status = $request->status;
         $order->save();
 

@@ -23,12 +23,13 @@ class CheckoutController extends Controller
 
     public function store(Request $request)
     {
+        // validasi data yang diminta sudah terpenuhi atau belum
         $request->validate([
             'customer_name' => 'required|string|max:255',
             'customer_whatsapp' => 'required|string|max:20',
             'message' => 'nullable|string|max:500',  // Validasi untuk kolom message
             'cart' => 'required|array',
-            'cart.*.product_id' => 'required|exists:products,id',
+            'cart.*.product_id' => 'required|exists:products,id', //simpan data product id dan kuantitasnya
             'cart.*.quantity' => 'required|integer|min:1',
             'customer_location' => 'required|string',
             'evidence_transfer' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
@@ -36,9 +37,9 @@ class CheckoutController extends Controller
 
         // Pisahkan lat dan long
         [$lat, $long] = explode(',', $request->customer_location . ',');
-        $path = $request->file('evidence_transfer')->store('evidence_transfers', 'public');
+        $path = $request->file('evidence_transfer')->store('evidence_transfers', 'public'); // simpan file bukti transfer
 
-        DB::beginTransaction();  // Mulai transaksi DB
+        DB::beginTransaction();  // Mulai transaksi DB > mengunci database sementara (antrian)
         try {
 
             // Simpan order beserta pesan tambahan
@@ -104,6 +105,7 @@ class CheckoutController extends Controller
             $token = config('services.telegram.bot_token');
             $chatId = config('services.telegram.chat_id');
 
+            // isi pesan telegram
             $message = "*New Order Received*\n\n";
             $message .= "Name: {$order->customer_name}\n";
             $message .= "WhatsApp: {$order->customer_whatsapp}\n";
@@ -112,6 +114,7 @@ class CheckoutController extends Controller
             $message .= "\nMessage (Optional):\n{$order->message}";
             $message .= "\n\n*Grand Total:* Rp{$order->total_price}";
 
+            //proses mengirim pesan telegram
             Http::post("https://api.telegram.org/bot{$token}/sendMessage", [
                 'chat_id' => $chatId,
                 'text' => $message,
