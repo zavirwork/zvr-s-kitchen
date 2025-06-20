@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zvr's Kitchen - Kebab enak dan bergiji!</title>
+    <title>Zvr's Kitchen - More than Delicious, It's Fantastic!</title>
 
     <!--
     - favicon
@@ -301,14 +301,13 @@
 
                     <div class="hero-content">
 
-                        <p class="hero-subtitle">Eat Sleep And</p>
+                        <p class="hero-subtitle">Eat Feel and Be Happy!</p>
 
-                        <h2 class="h1 hero-title">Supper delicious Burger in town!</h2>
+                        <h2 class="h1 hero-title">Super Delicious Food in Town!</h2>
 
-                        <p class="hero-text">Food is any substance consumed to provide nutritional support for an
-                            organism.</p>
+                        <p class="hero-text">Satu Gigitan, Seribu Kesan.</p>
 
-                        <button class="btn">Book A Table</button>
+                        {{-- <button class="btn">Book A Table</button> --}}
 
                     </div>
 
@@ -330,15 +329,15 @@
             <section class="section food-menu" id="food-menu">
                 <div class="container">
 
-                    <p class="section-subtitle">Popular Dishes</p>
+                    {{-- <p class="section-subtitle">Popular Dishes</p> --}}
 
                     <h2 class="h2 section-title">
-                        Our Delicious <span class="span">Foods</span>
+                        Our Delicious <span class="span">Foods Menu</span>
                     </h2>
 
-                    <p class="section-text">
+                    {{-- <p class="section-text">
                         Food is any substance consumed to provide nutritional support for an organism.
-                    </p>
+                    </p> --}}
 
                     <ul class="fiter-list">
                         <li><a href="{{ url('/') }}"
@@ -504,26 +503,26 @@
                     <a href="" class="logo">Zvr's<span class="span">Kitchen</span></a>
 
                     <p class="footer-text">
-                        Financial experts support or help you to to find out which way you can raise your funds more.
+                        Rasakan perbedaan dalam setiap suapan — karena kualitas tak bisa ditiru.
                     </p>
 
                     <ul class="social-list">
 
                         <li>
-                            <a href="#" class="social-link">
-                                <ion-icon name="logo-facebook"></ion-icon>
+                            <a href="https://wa.me/6281934131038" class="social-link">
+                                <ion-icon name="logo-whatsapp"></ion-icon>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="https://www.instagram.com/zvrs_kitchen?igsh=a2FoenAyMHh1eHZ5" class="social-link">
+                                <ion-icon name="logo-instagram"></ion-icon>
                             </a>
                         </li>
 
                         <li>
                             <a href="#" class="social-link">
                                 <ion-icon name="logo-twitter"></ion-icon>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="#" class="social-link">
-                                <ion-icon name="logo-instagram"></ion-icon>
                             </a>
                         </li>
 
@@ -564,16 +563,16 @@
                     </li>
 
                     <li>
-                        <p class="footer-list-item">Monday-Friday: 09:00-22:00</p>
+                        <p class="footer-list-item">EVERYDAY!</p>
                     </li>
 
                     <li>
-                        <p class="footer-list-item">Tuesday 4PM: Till Mid Night</p>
+                        <p class="footer-list-item">at 9.00 AM - 9.00 PM</p>
                     </li>
 
-                    <li>
+                    {{-- <li>
                         <p class="footer-list-item">Saturday: 10:00-16:00</p>
-                    </li>
+                    </li> --}}
 
                 </ul>
             </div>
