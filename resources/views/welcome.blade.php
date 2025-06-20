@@ -398,22 +398,22 @@
                             <span class="span">Quality Burgers!</span>
                         </h2>
 
-                        <p class="section-text">
+                        {{-- <p class="section-text">
                             The restaurants in Hangzhou also catered to many northern Chinese who had fled south from
                             Kaifeng during
                             the Jurchen
                             invasion of the 1120s, while it is also known that many restaurants were run by families.
-                        </p>
+                        </p> --}}
 
-                        <button class="btn btn-hover">Order Now</button>
+                        {{-- <button class="btn btn-hover">Order Now</button> --}}
                     </div>
 
                     <figure class="cta-banner">
                         <img src="{{ asset('assets-visitor/images/cta-banner.png') }}" width="700" height="637"
                             loading="lazy" alt="Burger" class="w-100 cta-img">
 
-                        <img src="{{ asset('assets-visitor/images/sale-shape.png') }}" width="216" height="226"
-                            loading="lazy" alt="get up to 50% off now" class="abs-img scale-up-anim">
+                        {{-- <img src="{{ asset('assets-visitor/images/sale-shape.png') }}" width="216" height="226"
+                            loading="lazy" alt="get up to 50% off now" class="abs-img scale-up-anim"> --}}
                     </figure>
 
                 </div>
@@ -432,10 +432,10 @@
                         Our Customers <span class="span">Reviews</span>
                     </h2>
 
-                    <p class="section-text">
+                    {{-- <p class="section-text">
                         Food is any substance consumed to provide nutritional
                         support for an organism.
-                    </p>
+                    </p> --}}
 
                     <ul class="testi-list has-scrollbar">
                         @foreach ($testimoni as $item)
