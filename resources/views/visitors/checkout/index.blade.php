@@ -15,23 +15,198 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Rubik:wght@400;500;600;700&family=Shadows+Into+Light&display=swap"
         rel="stylesheet">
+        
+    <style>
+        :root {
+            --primary: #ff8c00;
+            --primary-dark: #e67e00;
+            --light: #f9f9f9;
+            --dark: #333;
+            --gray: #777;
+            --light-gray: #eee;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            font-family: 'Rubik', sans-serif;
+            background-color: #f5f5f5;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .checkout-container {
+            max-width: 700px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+        }
+        
+        .checkout-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .checkout-header h2 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .checkout-body {
+            padding: 30px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light-gray);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            font-family: 'Rubik', sans-serif;
+            font-size: 15px;
+            transition: var(--transition);
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.2);
+        }
+        
+        textarea.input-field {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .divider {
+            height: 1px;
+            background-color: var(--light-gray);
+            margin: 25px 0;
+        }
+        
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .item-info {
+            flex: 1;
+        }
+        
+        .item-name {
+            font-weight: 500;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .qty-control {
+            display: flex;
+            gap: 10px;
+            color: var(--gray);
+            font-size: 14px;
+        }
+        
+        .item-total {
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .grand-total {
+            text-align: right;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary);
+            margin: 25px 0;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px;
+            width: 100%;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .bank-info {
+            background-color: #f8f8f8;
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            margin-top: 5px;
+            font-size: 14px;
+            color: var(--gray);
+        }
+        
+        .location-loading {
+            color: var(--gray);
+            font-style: italic;
+        }
+        
+        @media (max-width: 768px) {
+            .checkout-container {
+                margin: 20px;
+            }
+            
+            .checkout-body {
+                padding: 20px;
+            }
+        }
+    </style>
 </head>
 
 <body id="top">
 <main>
     <article>
         <section class="section" id="checkout-card" style="padding: 40px 0;">
-            <div class="container">
-                <div
-                    style="max-width: 600px; margin: auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); padding: 24px;">
-
-                    <h2 style="margin-bottom: 20px; text-align: center;">Checkout</h2>
-
-                    <form action="{{ route('orders.store') }}" method="POST" enctype="multipart/form-data"
-                          style="max-width: 600px; margin: 0 auto;">
+            <div class="checkout-container">
+                <div class="checkout-header">
+                    <h2>Checkout Order</h2>
+                </div>
+                
+                <div class="checkout-body">
+                    <form action="{{ route('orders.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
 
-                        <h2 class="section-title">Customer</h2>
+                        <h2 class="section-title">Customer Information</h2>
 
                         <div class="form-group">
                             <input type="hidden" name="user_id" required class="input-field"
@@ -40,55 +215,57 @@
                         
                         {{-- Nama --}}
                         <div class="form-group">
-                            <label for="customer_name">Name</label>
+                            <label for="customer_name">Full Name</label>
                             <input type="text" name="customer_name" required class="input-field"
                                    value="{{ auth()->check() ? auth()->user()->name : '' }}" placeholder="John Doe">
                         </div>
 
                         {{-- WhatsApp --}}
                         <div class="form-group">
-                            <label for="customer_whatsapp">WhatsApp</label>
+                            <label for="customer_whatsapp">WhatsApp Number</label>
                             <input type="text" name="customer_whatsapp" required class="input-field"
                                    value="{{ auth()->check() ? auth()->user()->user_whatsapp : '' }}" placeholder="628xxxxxxxxxx">
                         </div>
 
                         {{-- Bukti Transfer --}}
                         <div class="form-group">
-                            <label for="evidence_transfer">Upload Bukti Transfer</label>
+                            <label for="evidence_transfer">Payment Proof</label>
                             <input type="file" name="evidence_transfer" class="input-field"
                                    accept="image/*,application/pdf" required>
-                                   <small>1234567890 (Bank BNI)</small>
+                            <div class="bank-info">
+                                Transfer to: 1247362349 BNI (Mohammad Zavir Zakaria)
+                            </div>
                         </div>
 
                         {{-- Lokasi --}}
                         <div class="form-group">
-                            <label for="customer_location">Lokasi Anda (Otomatis)</label>
+                            <label for="customer_location">Your Location</label>
                             <input type="text" id="customer_location" readonly name="customer_location"
-                                   class="input-field" required>
+                                   class="input-field location-loading" required value="Detecting your location...">
                         </div>
 
                         {{-- Catatan --}}
                         <div class="form-group">
-                            <label for="message">Note (opsional)</label>
-                            <textarea name="message" rows="3" class="input-field"></textarea>
+                            <label for="message">Special Notes (optional)</label>
+                            <textarea name="message" rows="3" class="input-field" placeholder="Any special requests or delivery instructions"></textarea>
                         </div>
 
-                        <hr style="margin: 2rem 0;">
+                        <div class="divider"></div>
 
-                        <h3>Order Summary</h3>
+                        <h2 class="section-title">Order Summary</h2>
 
                         @if (count($cart) > 0)
                             @foreach ($cart as $index => $item)
-                                <div class="cart-item" style="margin-bottom: 1.5rem;">
+                                <div class="cart-item">
                                     <div class="item-info">
                                         <span class="item-name">{{ $item['name'] }}</span>
                                         <div class="qty-control">
                                             <span>Qty: {{ $item['quantity'] }}</span>
                                             <span>x Rp {{ number_format($item['price'], 0, ',', '.') }}</span>
                                         </div>
-                                        <div class="item-total">
-                                            Total: Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}
-                                        </div>
+                                    </div>
+                                    <div class="item-total">
+                                        Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}
                                     </div>
 
                                     <input type="hidden" name="cart[{{ $index }}][product_id]" value="{{ $item['id'] }}">
@@ -97,15 +274,15 @@
                                 </div>
                             @endforeach
 
-                            <h3 style="text-align: right; color: #e74c3c;">Grand Total: Rp
-                                {{ number_format($total, 0, ',', '.') }}</h3>
+                            <div class="grand-total">
+                                Grand Total: Rp {{ number_format($total, 0, ',', '.') }}
+                            </div>
                         @else
-                            <p>Keranjang Anda kosong.</p>
+                            <p>Your cart is empty.</p>
                         @endif
 
-                        <button type="submit" class="btn-delete"
-                                style="background-color: #ff8c00; color: white; padding: 12px 20px; border: none; border-radius: 6px; font-size: 16px; width: 100%;">
-                            Order Now
+                        <button type="submit" class="btn-primary">
+                            Place Order
                         </button>
                     </form>
                 </div>
@@ -116,19 +293,106 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        const locationField = document.getElementById("customer_location");
+        
         if (navigator.geolocation) {
+            locationField.classList.add('location-loading');
+            locationField.value = "Detecting your location...";
+            
             navigator.geolocation.getCurrentPosition(function (position) {
                 const lat = position.coords.latitude.toFixed(7);
                 const long = position.coords.longitude.toFixed(7);
-                document.getElementById("customer_location").value = `${lat}, ${long}`;
+                locationField.value = `${lat}, ${long}`;
+                locationField.classList.remove('location-loading');
             }, function (error) {
-                alert("Gagal mendapatkan lokasi. Silakan izinkan akses lokasi pada browser.");
+                locationField.value = "Location access denied - please enable location services";
+                locationField.classList.remove('location-loading');
             });
         } else {
-            alert("Browser Anda tidak mendukung fitur lokasi.");
+            locationField.value = "Browser doesn't support geolocation";
+            locationField.classList.remove('location-loading');
         }
     });
 </script>
+<script>
+    // Check for flash messages and show alerts
+    document.addEventListener('DOMContentLoaded', function() {
+        @if(session('success'))
+            showAlert('success', '{{ session('success') }}');
+        @endif
+        
+        @if(session('error'))
+            showAlert('error', '{{ session('error') }}');
+        @endif
+    });
 
+    function showAlert(type, message) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type}`;
+        alertDiv.style.position = 'fixed';
+        alertDiv.style.top = '20px';
+        alertDiv.style.right = '20px';
+        alertDiv.style.padding = '15px 20px';
+        alertDiv.style.borderRadius = '5px';
+        alertDiv.style.color = 'white';
+        alertDiv.style.zIndex = '1000';
+        alertDiv.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+        alertDiv.style.animation = 'slideIn 0.3s ease-out';
+        alertDiv.style.display = 'flex';
+        alertDiv.style.alignItems = 'center';
+        alertDiv.style.justifyContent = 'space-between';
+        alertDiv.style.minWidth = '300px';
+        alertDiv.style.maxWidth = '400px';
+        
+        if (type === 'success') {
+            alertDiv.style.backgroundColor = '#4CAF50';
+        } else {
+            alertDiv.style.backgroundColor = '#F44336';
+        }
+        
+        const messageSpan = document.createElement('span');
+        messageSpan.textContent = message;
+        alertDiv.appendChild(messageSpan);
+        
+        const closeBtn = document.createElement('button');
+        closeBtn.innerHTML = '&times;';
+        closeBtn.style.background = 'transparent';
+        closeBtn.style.border = 'none';
+        closeBtn.style.color = 'white';
+        closeBtn.style.cursor = 'pointer';
+        closeBtn.style.fontSize = '20px';
+        closeBtn.style.marginLeft = '15px';
+        closeBtn.addEventListener('click', function() {
+            alertDiv.style.animation = 'slideOut 0.3s ease-out';
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 300);
+        });
+        alertDiv.appendChild(closeBtn);
+        
+        document.body.appendChild(alertDiv);
+        
+        setTimeout(() => {
+            alertDiv.style.animation = 'slideOut 0.3s ease-out';
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 300);
+        }, 5000);
+    }
+
+    // Add CSS animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
 </body>
 </html>

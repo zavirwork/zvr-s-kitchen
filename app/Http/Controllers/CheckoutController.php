@@ -68,7 +68,7 @@ class CheckoutController extends Controller
                 // Cek apakah stok cukup
                 if ($product->stock < $item['quantity']) {
                     DB::rollBack();
-                    return response()->json(['message' => 'Not enough stock for ' . $product->name], 400);
+                    return redirect()->back()->with('error', 'Not enough stock for ' . $product->name);
                 }
 
                 // Kurangi stok produk

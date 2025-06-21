@@ -10,7 +10,7 @@
     <!--
     - favicon
   -->
-    <link rel="shortcut icon" href="{{ asset('asset-visitor/favicon.svg') }}" type="image/svg+xml">
+    <link rel="shortcut icon" href="{{ asset('assets/img/logo.png') }}" type="image/svg+xml">
 
     <!--
     - custom css link
