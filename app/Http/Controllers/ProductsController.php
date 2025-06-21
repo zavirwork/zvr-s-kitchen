@@ -69,6 +69,15 @@ class ProductsController extends Controller
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
 
+        // Update data produk
+        $product->update([
+            'name' => $request->name,
+            'type' => $request->type,
+            'description' => $request->description,
+            'price' => $request->price,
+            'stock' => $request->stock,
+        ]);
+
         // Cek apakah ada gambar baru yang diupload
         if ($request->hasFile('images')) {
             // Hapus semua gambar lama dari storage dan database

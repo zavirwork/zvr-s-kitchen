@@ -18,8 +18,8 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
-    <link rel="icon" type="image/png" href="../assets/img/favicon.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('assets/img/logo.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('assets/img/logo.png') }}">
     <title>
         Zvr's Kitchen - Dashboard
     </title>
@@ -98,7 +98,7 @@
     <script src="{{ asset('assets/js/core/bootstrap.min.js') }}"></script>
     <script src="{{ asset('assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
     <script src="{{ asset('assets/js/plugins/smooth-scrollbar.min.js') }}"></script>
-    
+
     <script>
         var win = navigator.platform.indexOf('Win') > -1;
         if (win && document.querySelector('#sidenav-scrollbar')) {
@@ -108,7 +108,9 @@
             Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
         }
     </script>
-    
+    <!-- Di bagian sebelum penutup body -->
+    <script src="{{ asset('assets/js/argon-dashboard.min.js?v=2.1.0') }}"></script>
+
     {{-- Modal confirmation --}}
     <script>
         function setDeleteAction(url) {
