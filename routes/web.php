@@ -103,3 +103,4 @@ Route::post('/cart/update-quantity/{id}', [CartController::class, 'updateQuantit
 Route::post('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout/order', [CheckoutController::class, 'store'])->name('orders.store');
+Route::post('/cart/update-note/{id}', [CartController::class, 'updateNote'])->name('cart.updateNote');

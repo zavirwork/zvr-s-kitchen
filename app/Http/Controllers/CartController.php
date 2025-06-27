@@ -37,7 +37,6 @@ class CartController extends Controller
         }
 
         session()->put('cart', $cart);
-
         return response()->json([
             'message' => 'Success added to cart',
             'cart_count' => count($cart)
@@ -81,5 +80,19 @@ class CartController extends Controller
             'cart_count' => count($cart),
             'total_formatted' => 'Rp ' . number_format($total, 0, ',', '.'),
         ]);
+    }
+
+    public function updateNote(Request $request, $id)
+    {
+        $cart = session('cart', []);
+
+        if (!isset($cart[$id])) {
+            return response()->json(['success' => false, 'message' => 'Item tidak ditemukan di cart']);
+        }
+
+        $cart[$id]['note'] = $request->note;
+        session(['cart' => $cart]);
+
+        return response()->json(['success' => true, 'message' => 'Catatan diperbarui']);
     }
 }

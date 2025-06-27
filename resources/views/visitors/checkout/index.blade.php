@@ -263,6 +263,7 @@
                                             <span>Qty: {{ $item['quantity'] }}</span>
                                             <span>x Rp {{ number_format($item['price'], 0, ',', '.') }}</span>
                                         </div>
+                                        <span>Note: {{ $item['note'] }}</span>
                                     </div>
                                     <div class="item-total">
                                         Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}
@@ -271,6 +272,7 @@
                                     <input type="hidden" name="cart[{{ $index }}][product_id]" value="{{ $item['id'] }}">
                                     <input type="hidden" name="cart[{{ $index }}][quantity]" value="{{ $item['quantity'] }}">
                                     <input type="hidden" name="cart[{{ $index }}][price]" value="{{ $item['price'] }}">
+                                    <input type="hidden" name="cart[{{ $index }}][note]" value="{{ $item['note'] ?? '' }}">
                                 </div>
                             @endforeach
 

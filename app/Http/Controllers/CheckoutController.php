@@ -42,12 +42,31 @@ class CheckoutController extends Controller
         DB::beginTransaction();  // Mulai transaksi DB > mengunci database sementara (antrian)
         try {
 
+            $cart = $request->input('cart', []);
+            $specialNote = $request->input('message', '');
+
+            // Inisialisasi note gabungan
+            $compiledNotes = 'notes: ' . $specialNote . '; ';
+
+            foreach ($cart as $item) {
+                $productId = $item['product_id'];
+
+                // Ambil nama produk dari DB
+                $product = Products::find($productId);
+                $productName = $product ? strtolower($product->name) : 'menu';
+
+                // Tambahkan note jika ada
+                if (!empty($item['note'])) {
+                    $compiledNotes .= $productName . ': ' . $item['note'] . '; ';
+                }
+            }
+
             // Simpan order beserta pesan tambahan
             $order = Order::create([
                 'user_id' => Auth::check() ? Auth::id() : null,
                 'customer_name' => $request->customer_name,
                 'customer_whatsapp' => $request->customer_whatsapp,
-                'message' => $request->message ?? '-',
+                'message' => $compiledNotes ?? '-',
                 'total_price' => 0,
                 'status' => 'pending',
                 'latitude' => trim($lat),
