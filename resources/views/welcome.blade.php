@@ -445,9 +445,8 @@
                                     {{-- Profile --}}
                                     <div class="profile-wrapper">
                                         <figure class="avatar">
-                                            <img src="{{ asset('assets-visitor/images/user.png') }}"
-                                                width="80" height="80" loading="lazy"
-                                                alt="{{ $item->user->name }}">
+                                            <img src="{{ asset('assets-visitor/images/user.png') }}" width="80"
+                                                height="80" loading="lazy" alt="{{ $item->user->name }}">
                                         </figure>
 
                                         <div>
@@ -515,7 +514,8 @@
                         </li>
 
                         <li>
-                            <a href="https://www.instagram.com/zvrs_kitchen?igsh=a2FoenAyMHh1eHZ5" class="social-link">
+                            <a href="https://www.instagram.com/zvrs_kitchen?igsh=a2FoenAyMHh1eHZ5"
+                                class="social-link">
                                 <ion-icon name="logo-instagram"></ion-icon>
                             </a>
                         </li>
@@ -551,7 +551,8 @@
                     </li>
 
                     <li>
-                        <address class="footer-list-item">JL. Musi No. 48, RT04/RW01, Kel. Penganjuran, Kec. Banyuwangi, Kab. Banyuwangi</address>
+                        <address class="footer-list-item">JL. Musi No. 48, RT04/RW01, Kel. Penganjuran, Kec.
+                            Banyuwangi, Kab. Banyuwangi</address>
                     </li>
 
                 </ul>
@@ -745,6 +746,40 @@
                 });
         }
     </script>
+
+    <script>
+        function updateNote(productId, note) {
+            fetch(`/cart/update-note/${productId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        note: note
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        alert('Gagal menyimpan catatan');
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                    alert('Terjadi kesalahan saat menyimpan catatan');
+                });
+        }
+
+        // Event delegation: jika cart sudah di-render dinamis, kita tangkap perubahan input dengan cara ini
+        document.addEventListener('input', function(e) {
+            if (e.target.matches('input[name^="notes["]')) {
+                const productId = e.target.name.match(/\[(\d+)\]/)[1];
+                updateNote(productId, e.target.value);
+            }
+        });
+    </script>
+
 
     <!--Start of Tawk.to Script-->
     <script type="text/javascript">

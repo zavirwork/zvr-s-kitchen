@@ -241,7 +241,16 @@
                     }
 
                     // Ambil pesan jika ada
-                    const message = order.message ?? '-';
+                    let message = order.message ?? '-';
+                    if (message && message !== '-') {
+                        const messageLines = message
+                            .split(';')
+                            .map(line => line.trim())
+                            .filter(line => line.length > 0)
+                            .map(line => `- ${line}`);
+                        
+                        message = messageLines.join('<br>');
+                    }
 
                     // Isi konten modal dengan data yang sudah diproses
                     content.innerHTML = `
@@ -250,7 +259,7 @@
               <strong>Customer Name:</strong> ${order.customer_name}<br>
               <strong>WhatsApp Number:</strong> ${order.customer_whatsapp}<br>
               <strong>Status:</strong> ${order.status}<br>
-              <strong>Message:</strong> ${message}<br>
+              <strong>Message:</strong><br> ${message}<br>
             </div>
 
             <div class="table-responsive">
