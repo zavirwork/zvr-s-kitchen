@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Addon;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Products;
@@ -23,45 +24,38 @@ class CheckoutController extends Controller
 
     public function store(Request $request)
     {
-        // validasi data yang diminta sudah terpenuhi atau belum
         $request->validate([
             'customer_name' => 'required|string|max:255',
             'customer_whatsapp' => 'required|string|max:20',
-            'message' => 'nullable|string|max:500',  // Validasi untuk kolom message
+            'message' => 'nullable|string|max:500',
             'cart' => 'required|array',
-            'cart.*.product_id' => 'required|exists:products,id', //simpan data product id dan kuantitasnya
+            'cart.*.product_id' => 'required|exists:products,id',
             'cart.*.quantity' => 'required|integer|min:1',
+            'cart.*.addons' => 'nullable|array',
+            'cart.*.addons.*' => 'exists:addons,id',
             'customer_location' => 'required|string',
             'evidence_transfer' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
-        // Pisahkan lat dan long
         [$lat, $long] = explode(',', $request->customer_location . ',');
-        $path = $request->file('evidence_transfer')->store('evidence_transfers', 'public'); // simpan file bukti transfer
+        $path = $request->file('evidence_transfer')->store('evidence_transfers', 'public');
 
-        DB::beginTransaction();  // Mulai transaksi DB > mengunci database sementara (antrian)
+        DB::beginTransaction();
         try {
-
             $cart = $request->input('cart', []);
             $specialNote = $request->input('message', '');
 
-            // Inisialisasi note gabungan
             $compiledNotes = 'notes: ' . $specialNote . '; ';
-
             foreach ($cart as $item) {
                 $productId = $item['product_id'];
-
-                // Ambil nama produk dari DB
                 $product = Products::find($productId);
                 $productName = $product ? strtolower($product->name) : 'menu';
 
-                // Tambahkan note jika ada
                 if (!empty($item['note'])) {
                     $compiledNotes .= $productName . ': ' . $item['note'] . '; ';
                 }
             }
 
-            // Simpan order beserta pesan tambahan
             $order = Order::create([
                 'user_id' => Auth::check() ? Auth::id() : null,
                 'customer_name' => $request->customer_name,
@@ -74,57 +68,52 @@ class CheckoutController extends Controller
                 'evidence_transfer' => $path,
             ]);
 
-            $itemsData = [];
-            $messageItems = "";
             $totalPrice = 0;
+            $messageItems = "";
 
-            foreach ($request->cart as $item) {
-                // Lock produk yang dipilih agar tidak ada transaksi lain yang bisa mengubahnya
-                $product = Products::where('id', $item['product_id'])
-                    ->lockForUpdate()  // Mengunci baris produk ini untuk transaksi ini
-                    ->first();
+            foreach ($cart as $item) {
+                $product = Products::find($item['product_id']);
 
-                // Cek apakah stok cukup
-                if ($product->stock < $item['quantity']) {
-                    DB::rollBack();
-                    return redirect()->back()->with('error', 'Not enough stock for ' . $product->name);
-                }
+                // ❌ Bagian pengurangan stok DIHILANGKAN
 
-                // Kurangi stok produk
-                $product->stock -= $item['quantity'];
-                $product->save();  // Simpan perubahan stok
-
-                // Insert data ke order_items
-                $itemsData[] = [
+                $orderItem = OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $product->id,
                     'quantity' => $item['quantity'],
                     'price_at_time' => $product->price,
                     'created_at' => now(),
                     'updated_at' => now(),
-                ];
+                ]);
 
-                // Update total harga
-                $totalPrice += $product->price * $item['quantity'];
-
-                // Menambahkan item ke dalam pesan Telegram
+                $itemTotal = $product->price * $item['quantity'];
+                $totalPrice += $itemTotal;
                 $messageItems .= "- {$product->name} x {$item['quantity']} @ Rp{$product->price}\n";
+
+                if (isset($item['addons']) && is_array($item['addons'])) {
+                    foreach ($item['addons'] as $addonId) {
+                        $addon = Addon::find($addonId);
+                        if ($addon) {
+                            $orderItem->addons()->attach($addon->id, [
+                                'price_at_time' => $addon->price,
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]);
+                            $totalPrice += $addon->price;
+                            $messageItems .= "   + {$addon->name} @ Rp{$addon->price}\n";
+                        }
+                    }
+                }
             }
 
-            // Insert order_items ke database
-            OrderItem::insert($itemsData);
-
-            // Update total harga di tabel orders
             $order->total_price = $totalPrice;
             $order->save();
 
-            DB::commit();  // Commit transaksi jika semua berhasil
+            DB::commit();
 
-            // Kirim ke Telegram
+            // Telegram Notification
             $token = config('services.telegram.bot_token');
             $chatId = config('services.telegram.chat_id');
 
-            // isi pesan telegram
             $message = "*New Order Received*\n\n";
             $message .= "Name: {$order->customer_name}\n";
             $message .= "WhatsApp: {$order->customer_whatsapp}\n";
@@ -133,7 +122,6 @@ class CheckoutController extends Controller
             $message .= "\nMessage (Optional):\n{$order->message}";
             $message .= "\n\n*Grand Total:* Rp{$order->total_price}";
 
-            //proses mengirim pesan telegram
             Http::post("https://api.telegram.org/bot{$token}/sendMessage", [
                 'chat_id' => $chatId,
                 'text' => $message,
@@ -141,10 +129,14 @@ class CheckoutController extends Controller
             ]);
 
             session()->forget('cart');
+
             return redirect('/')->with('success', 'Success, We have received your order');
         } catch (\Exception $e) {
-            DB::rollBack();  // Rollback jika terjadi kesalahan
-            return response()->json(['message' => 'Failed to place order', 'error' => $e->getMessage()], 500);
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Failed to place order',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Addon;
 use App\Models\ProductImage;
 use App\Models\Products;
 use Illuminate\Http\Request;
@@ -17,7 +18,8 @@ class ProductsController extends Controller
 
     public function create()
     {
-        return view('admin.product.create');
+        $addons = Addon::all();
+        return view('admin.products.create', compact('addons'));
     }
 
     public function store(Request $request)
@@ -29,6 +31,8 @@ class ProductsController extends Controller
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'images' => 'required|array|max:5',
+            'addon_ids' => 'nullable|array',
+            'addon_ids.*' => 'exists:addons,id'
         ]);
 
         $product = Products::create([
@@ -39,6 +43,12 @@ class ProductsController extends Controller
             'stock' => $request->stock,
         ]);
 
+        // Simpan relasi add-on (jika ada)
+        if ($request->filled('addon_ids')) {
+            $product->addons()->sync($request->addon_ids);
+        }
+
+        // Simpan gambar
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $path = $image->store('product_images', 'public');
@@ -52,11 +62,16 @@ class ProductsController extends Controller
         return redirect()->route('admin.products.index')->with('success', 'Product successfully added!');
     }
 
+
     public function edit(Products $product)
     {
-        $product->load('images'); // untuk ambil semua gambar
-        return view('admin.product.edit', compact('product'));
+        $product->load(['images', 'addons']);
+        $addons = Addon::all();
+        $productAddonIds = $product->addons->pluck('id')->toArray();
+
+        return view('admin.product.edit', compact('product', 'addons', 'productAddonIds'));
     }
+
 
     public function update(Request $request, Products $product)
     {
@@ -66,10 +81,11 @@ class ProductsController extends Controller
             'description' => 'nullable|string',
             'price' => 'required|numeric',
             'stock' => 'required|integer',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'addon_ids' => 'nullable|array',
+            'addon_ids.*' => 'exists:addons,id'
         ]);
 
-        // Update data produk
         $product->update([
             'name' => $request->name,
             'type' => $request->type,
@@ -78,15 +94,16 @@ class ProductsController extends Controller
             'stock' => $request->stock,
         ]);
 
-        // Cek apakah ada gambar baru yang diupload
+        // Update relasi add-on
+        $product->addons()->sync($request->addon_ids ?? []);
+
+        // Cek dan update gambar
         if ($request->hasFile('images')) {
-            // Hapus semua gambar lama dari storage dan database
             foreach ($product->images as $image) {
-                Storage::disk('public')->delete($image->path); // Hapus file fisik
-                $image->delete(); // Hapus dari database
+                Storage::disk('public')->delete($image->path);
+                $image->delete();
             }
 
-            // Simpan gambar baru
             foreach ($request->file('images') as $image) {
                 $path = $image->store('products', 'public');
 
@@ -99,6 +116,7 @@ class ProductsController extends Controller
 
         return redirect()->route('admin.products.index')->with('success', 'Product successfully updated!');
     }
+
 
     public function destroy(Products $product)
     {

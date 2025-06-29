@@ -46,8 +46,21 @@
                                     <small class="text-muted">You can select more than one image</small>
                                 </div>
 
+                                <div class="col-12 mb-4">
+                                    <label for="addons" class="form-label">Add-ons</label>
+                                    <select name="addon_ids[]" id="addons" class="form-select" multiple>
+                                        @foreach ($addons as $addon)
+                                            <option value="{{ $addon->id }}">
+                                                {{ $addon->name }} - Rp{{ number_format($addon->price, 0, ',', '.') }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <small class="text-muted">Hold Ctrl (Cmd di Mac) untuk pilih lebih dari satu.</small>
+                                </div>
+
                                 <div class="col-12">
-                                    <button type="button" class="btn btn-danger" onclick="window.history.back()">Cancel</button>
+                                    <button type="button" class="btn btn-danger"
+                                        onclick="window.history.back()">Cancel</button>
                                     <button type="submit" class="btn btn-primary">Save</button>
                                 </div>
                             </div>

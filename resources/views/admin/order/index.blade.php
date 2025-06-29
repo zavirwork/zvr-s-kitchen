@@ -197,96 +197,109 @@
     </div>
 @endsection
 @section('script')
-    <script>
-        const seeOrderModal = document.getElementById('seeOrderModal');
+<script>
+    const seeOrderModal = document.getElementById('seeOrderModal');
 
-        seeOrderModal.addEventListener('show.bs.modal', function(event) {
-            const button = event.relatedTarget; // Ambil elemen tombol yang men-trigger modal
-            const url = button.getAttribute('data-order-url'); // Ambil URL dari atribut data-order-url
-            const content = document.getElementById('orderDetailContent');
+    // Format angka jadi format mata uang Indonesia
+    function formatRupiah(number) {
+        return new Intl.NumberFormat('id-ID').format(number);
+    }
 
-            // Tampilkan pesan loading
-            content.innerHTML = '<p>Please wait...</p>';
+    seeOrderModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        const url = button.getAttribute('data-order-url');
+        const content = document.getElementById('orderDetailContent');
 
-            // Fetch data order
-            fetch(url)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json(); // Ubah response ke JSON
-                })
-                .then(order => {
-                    let itemsHtml = '';
+        content.innerHTML = '<p>Please wait...</p>';
 
-                    // Cek apakah ada items dan looping untuk menampilkan data
-                    if (order.items && order.items.length > 0) {
-                        order.items.forEach(item => {
-                            const name = item.product ? item.product.name : 'Produk tidak ditemukan';
-                            const price = item.price_at_time;
-                            const qty = item.quantity;
-                            const subtotal = price * qty;
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(order => {
+                let itemsHtml = '';
 
-                            itemsHtml += `
-                <tr>
-                  <td>${name}</td>
-                  <td>${qty}</td>
-                  <td>Rp${price}</td>
-                  <td>Rp${subtotal}</td>
-                </tr>
-              `;
-                        });
-                    } else {
-                        itemsHtml = '<tr><td colspan="4">No items available.</td></tr>';
-                    }
+                if (order.items && order.items.length > 0) {
+                    order.items.forEach(item => {
+                        const name = item.product ? item.product.name : 'Produk tidak ditemukan';
+                        const price = parseFloat(item.price_at_time);
+                        const qty = item.quantity;
+                        const subtotal = price * qty;
 
-                    // Ambil pesan jika ada
-                    let message = order.message ?? '-';
-                    if (message && message !== '-') {
-                        const messageLines = message
-                            .split(';')
-                            .map(line => line.trim())
-                            .filter(line => line.length > 0)
-                            .map(line => `- ${line}`);
-                        
-                        message = messageLines.join('<br>');
-                    }
+                        // Handle Addons
+                        let addonsHtml = '';
+                        if (item.addons && item.addons.length > 0) {
+                            addonsHtml += '<ul class="mb-0 ps-3">';
+                            item.addons.forEach(addon => {
+                                addonsHtml += `<li>${addon.name} (Rp${formatRupiah(addon.pivot.price_at_time)})</li>`;
+                            });
+                            addonsHtml += '</ul>';
+                        }
 
-                    // Isi konten modal dengan data yang sudah diproses
-                    content.innerHTML = `
-            <div class="mb-3">
-              <strong>Order ID:</strong> #${order.id}<br>
-              <strong>Customer Name:</strong> ${order.customer_name}<br>
-              <strong>WhatsApp Number:</strong> ${order.customer_whatsapp}<br>
-              <strong>Status:</strong> ${order.status}<br>
-              <strong>Message:</strong><br> ${message}<br>
-            </div>
+                        itemsHtml += `
+                            <tr>
+                                <td>
+                                    ${name}
+                                    ${addonsHtml}
+                                </td>
+                                <td>${qty}</td>
+                                <td>Rp${formatRupiah(price)}</td>
+                                <td>Rp${formatRupiah(subtotal)}</td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    itemsHtml = '<tr><td colspan="4">No items available.</td></tr>';
+                }
 
-            <div class="table-responsive">
-              <table class="table table-bordered table-sm">
-                <thead class="bg-light">
-                  <tr>
-                    <th>Product</th>
-                    <th>Qty</th>
-                    <th>Price</th>
-                    <th>Subtotal</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${itemsHtml}
-                </tbody>
-              </table>
-            </div>
+                let message = order.message ?? '-';
+                if (message && message !== '-') {
+                    const messageLines = message
+                        .split(';')
+                        .map(line => line.trim())
+                        .filter(line => line.length > 0)
+                        .map(line => `- ${line}`);
+                    
+                    message = messageLines.join('<br>');
+                }
 
-            <div class="text-end">
-              <strong>Total:</strong> Rp${order.total_price}
-            </div>
-          `;
-                })
-                .catch(error => {
-                    // Jika ada error, tampilkan pesan error
-                    content.innerHTML = `<p class="text-danger">Something went wrong: ${error.message}</p>`;
-                });
-        });
-    </script>
+                content.innerHTML = `
+                    <div class="mb-3">
+                        <strong>Order ID:</strong> #${order.id}<br>
+                        <strong>Customer Name:</strong> ${order.customer_name}<br>
+                        <strong>WhatsApp Number:</strong> ${order.customer_whatsapp}<br>
+                        <strong>Status:</strong> ${order.status}<br>
+                        <strong>Message:</strong><br> ${message}<br>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Qty</th>
+                                    <th>Price</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${itemsHtml}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="text-end">
+                        <strong>Total:</strong> Rp${formatRupiah(order.total_price)}
+                    </div>
+                `;
+            })
+            .catch(error => {
+                content.innerHTML = `<p class="text-danger">Something went wrong: ${error.message}</p>`;
+            });
+    });
+</script>
 @endsection
+

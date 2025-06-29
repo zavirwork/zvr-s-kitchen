@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AddonController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
@@ -69,6 +70,15 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
         Route::put('/{order}/update-status', [OrdersController::class, 'updateStatus'])->name('admin.orders.update_status');
         Route::get('/{order}', [OrdersController::class, 'show'])->name('admin.orders.show');
     });
+
+    Route::prefix('addons')->group(function () {
+        Route::get('/', [AddonController::class, 'index'])->name('admin.addons.index');
+        Route::post('/store', [AddonController::class, 'store'])->name('admin.addons.store');
+        Route::put('/{addon}', [AddonController::class, 'update'])->name('admin.addons.update');
+        Route::delete('/{addon}/delete', [AddonController::class, 'destroy'])->name('admin.addons.destroy');
+    });
+
+
 });
 
 // ======================

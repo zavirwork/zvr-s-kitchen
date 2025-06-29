@@ -25,4 +25,11 @@ class OrderItem extends Model
     {
         return $this->belongsTo(Products::class);
     }
+
+    public function addons()
+    {
+        return $this->belongsToMany(Addon::class, 'order_item_addons')
+            ->withPivot('price_at_time')
+            ->withTimestamps();
+    }
 }
