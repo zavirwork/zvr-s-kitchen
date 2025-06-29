@@ -90,6 +90,17 @@
             gap: 6px;
         }
 
+        .item-info input[type="text"] {
+            padding: 6px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 100%;
+            max-width: 300px;
+            background-color: #f9f9f9;
+            margin-top: 6px;
+        }
+
         .item-name {
             font-weight: bold;
             font-size: 16px;

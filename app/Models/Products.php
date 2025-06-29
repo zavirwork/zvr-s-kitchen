@@ -27,4 +27,9 @@ class Products extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
+    public function addons()
+    {
+        return $this->belongsToMany(Addon::class, 'product_addons', 'product_id', 'addon_id');
+    }
 }

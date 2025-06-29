@@ -16,7 +16,7 @@
                     <div class="item-total">
                         Total: Rp <span id="total-{{ $item['id'] }}">{{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}</span>
                     </div>
-                    <input type="text" name="notes[{{ $item['id'] }}]" value="{{ $item['note'] ?? '' }}">
+                    <input type="text" name="notes[{{ $item['id'] }}]" value="{{ $item['note'] ?? '' }}" placeholder="Tulis catatan untuk menu ini">
                 </div>
             
                 <button class="btn-delete" onclick="removeItem({{ $item['id'] }})">

@@ -33,6 +33,7 @@ class CartController extends Controller
                 'price' => $product->price,
                 'quantity' => $quantity,
                 'image' => $product->images[0]->path ?? null,
+                'note' => '',
             ];
         }
 
