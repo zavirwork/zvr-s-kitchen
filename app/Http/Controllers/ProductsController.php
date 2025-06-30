@@ -19,7 +19,7 @@ class ProductsController extends Controller
     public function create()
     {
         $addons = Addon::all();
-        return view('admin.products.create', compact('addons'));
+        return view('admin.product.create', compact('addons'));
     }
 
     public function store(Request $request)
