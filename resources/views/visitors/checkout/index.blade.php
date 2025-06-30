@@ -307,7 +307,9 @@
                                                     <strong class="addon-title">Pilih Addon:</strong>
                                                     @foreach ($product->addons as $addon)
                                                         <label class="addon-option">
-                                                            <input type="checkbox"
+                                                            <input type="checkbox" class="addon-checkbox"
+                                                                data-price="{{ $addon->price }}"
+                                                                data-item-index="{{ $index }}"
                                                                 name="cart[{{ $index }}][addons][]"
                                                                 value="{{ $addon->id }}">
                                                             <span>{{ $addon->name }} (+Rp
@@ -335,7 +337,8 @@
                                 @endforeach
 
                                 <div class="grand-total">
-                                    Grand Total: Rp {{ number_format($total, 0, ',', '.') }}
+                                    Grand Total: <span id="grand-total" data-base-total="{{ $total }}">Rp
+                                        {{ number_format($total, 0, ',', '.') }}</span>
                                 </div>
                             @else
                                 <p>Your cart is empty.</p>
@@ -454,6 +457,36 @@
     `;
         document.head.appendChild(style);
     </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const addonCheckboxes = document.querySelectorAll('.addon-checkbox');
+            const grandTotalEl = document.getElementById('grand-total');
+
+            function formatRupiah(num) {
+                return 'Rp ' + Number(num).toLocaleString('id-ID');
+            }
+
+            function recalculateTotal() {
+                let baseTotal = parseInt(grandTotalEl.getAttribute('data-base-total')) || 0;
+                let addonTotal = 0;
+
+                addonCheckboxes.forEach(cb => {
+                    if (cb.checked) {
+                        addonTotal += parseInt(cb.dataset.price || 0);
+                    }
+                });
+
+                const finalTotal = baseTotal + addonTotal;
+                grandTotalEl.textContent = formatRupiah(finalTotal);
+            }
+
+            addonCheckboxes.forEach(cb => {
+                cb.addEventListener('change', recalculateTotal);
+            });
+        });
+    </script>
+
 </body>
 
 </html>
