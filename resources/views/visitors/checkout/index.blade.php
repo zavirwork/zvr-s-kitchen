@@ -304,7 +304,7 @@
 
                                             @if ($product && $product->addons->count())
                                                 <div class="addon-wrapper">
-                                                    <strong class="addon-title">Pilih Addon:</strong>
+                                                    <strong class="addon-title">Pilih Add-on:</strong>
                                                     @foreach ($product->addons as $addon)
                                                         <label class="addon-option">
                                                             <input type="checkbox" class="addon-checkbox"
