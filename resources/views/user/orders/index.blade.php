@@ -86,14 +86,14 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Detail Pesanan</h5>
+                    <h5 class="modal-title">Detail Order</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
                 </div>
                 <div class="modal-body" id="orderModalContent">
                     <p>Loading...</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -223,16 +223,13 @@
     </script>
 
     <script>
-        // Initialize modal
         const orderModal = document.getElementById('orderModal');
 
-        // Order modal show event
         orderModal.addEventListener('show.bs.modal', function(event) {
             const button = event.relatedTarget;
             const url = button.getAttribute('data-order-url');
             const content = document.getElementById('orderModalContent');
 
-            // Show loading spinner
             content.innerHTML = `
             <div class="text-center py-4">
                 <div class="spinner-border text-primary" role="status">
@@ -247,18 +244,34 @@
                     return response.json();
                 })
                 .then(order => {
-                    // Build items table
                     let itemsHtml = '';
+
                     if (order.items && order.items.length > 0) {
                         order.items.forEach(item => {
                             const name = item.product ? item.product.name : 'Produk tidak ditemukan';
+                            const price = parseFloat(item.price_at_time);
                             const qty = item.quantity;
-                            const price = item.price_at_time;
-                            const subtotal = qty * price;
+                            const subtotal = price * qty;
+
+                            // ✅ Tampilkan addons seperti di admin
+                            let addonsHtml = '';
+                            if (item.addons && item.addons.length > 0) {
+                                addonsHtml += '<ul class="mb-0 ps-3 small">';
+                                item.addons.forEach(addon => {
+                                    const addonName = addon.name || '-';
+                                    const addonPrice = addon.pivot?.price_at_time ?? 0;
+                                    addonsHtml +=
+                                        `<li>${addonName} (Rp${addonPrice.toLocaleString('id-ID')})</li>`;
+                                });
+                                addonsHtml += '</ul>';
+                            }
 
                             itemsHtml += `
                             <tr>
-                                <td>${name}</td>
+                                <td>
+                                    ${name}
+                                    ${addonsHtml}
+                                </td>
                                 <td class="text-end">${qty}</td>
                                 <td class="text-end">Rp${price.toLocaleString('id-ID')}</td>
                                 <td class="text-end">Rp${subtotal.toLocaleString('id-ID')}</td>
@@ -269,7 +282,25 @@
                         itemsHtml = '<tr><td colspan="4" class="text-center">Tidak ada item.</td></tr>';
                     }
 
-                    // Build complete modal content (without rating)
+                    // ✅ Format notes/message seperti di admin
+                    let messageHtml = '';
+                    let message = order.message ?? '-';
+                    if (message && message.trim() !== '-') {
+                        const messageLines = message
+                            .split(';')
+                            .map(line => line.trim())
+                            .filter(line => line.length > 0)
+                            .map(line => `- ${line}`);
+                        message = messageLines.join('<br>');
+
+                        messageHtml = `
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Message</label><br>
+                            ${message}
+                        </div>
+                    `;
+                    }
+
                     content.innerHTML = `
                     <div class="order-detail-container">
                         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -280,7 +311,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label text-muted">Tanggal Pesanan</label>
+                            <label class="form-label text-muted">Order Date</label>
                             <p>${new Date(order.created_at).toLocaleDateString('id-ID', {
                                 day: 'numeric',
                                 month: 'long',
@@ -288,20 +319,15 @@
                             })}</p>
                         </div>
 
-                        ${order.message ? `
-                                <div class="mb-3">
-                                    <label class="form-label text-muted">Catatan</label>
-                                    <p>${order.message}</p>
-                                </div>
-                            ` : ''}
+                        ${messageHtml}
 
                         <div class="table-responsive mt-3">
                             <table class="table table-bordered">
                                 <thead class="bg-light">
                                     <tr>
-                                        <th>Produk</th>
+                                        <th>Product</th>
                                         <th class="text-end">Qty</th>
-                                        <th class="text-end">Harga</th>
+                                        <th class="text-end">Price</th>
                                         <th class="text-end">Subtotal</th>
                                     </tr>
                                 </thead>
@@ -329,7 +355,6 @@
                 });
         });
 
-        // Helper function to get status badge class
         function getStatusBadgeClass(status) {
             const classes = {
                 'pending': 'bg-secondary',
@@ -341,6 +366,7 @@
             return classes[status] || 'bg-dark';
         }
     </script>
+
 
 
     <style>

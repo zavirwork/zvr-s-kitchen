@@ -7,7 +7,7 @@
 
         <!-- Brand logo -->
         <a class="navbar-brand m-0" href="{{ route('user.dashboard') }}">
-            <img src="{{ asset('assets/img/logo.png') }}" style="height: 100px; width: 50px;" class="navbar-brand-img" alt="main_logo">
+            <img src="{{ asset('assets/img/logo.png') }}" style="height: 100px; width: 40px;" class="navbar-brand-img" alt="main_logo">
             <span class="ms-1 font-weight-bold">Zvr's Kitchen</span>
         </a>
     </div>
