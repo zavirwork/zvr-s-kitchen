@@ -287,6 +287,13 @@
                             @if (count($cart) > 0)
                                 @foreach ($cart as $index => $item)
                                     <div class="cart-item">
+                                        {{-- Gambar Produk --}}
+                                        @if (!empty($item['image']))
+                                            <img src="{{ asset('storage/' . $item['image']) }}"
+                                                alt="{{ $item['name'] }}"
+                                                style="width: 70px; height: 70px; object-fit: cover; border-radius: 6px; margin-right: 15px;">
+                                        @endif
+
                                         <div class="item-info">
                                             <span class="item-name">{{ $item['name'] }}</span>
                                             <div class="qty-control">
@@ -318,13 +325,14 @@
                                                     @endforeach
                                                 </div>
                                             @endif
-
                                             {{-- ADDON SECTION END --}}
                                         </div>
+
                                         <div class="item-total">
                                             Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}
                                         </div>
 
+                                        {{-- Hidden Inputs --}}
                                         <input type="hidden" name="cart[{{ $index }}][product_id]"
                                             value="{{ $item['id'] }}">
                                         <input type="hidden" name="cart[{{ $index }}][quantity]"

@@ -22,7 +22,7 @@ class UserOrdersController extends Controller
     {
         $order = Order::with([
             'items.product',
-            'items.addons' // <--- Ini dia tambahan pentingnya
+            'items.addons'
         ])->where('user_id', Auth::id())->findOrFail($id);
 
         return response()->json($order);

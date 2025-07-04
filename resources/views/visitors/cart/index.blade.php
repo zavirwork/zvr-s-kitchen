@@ -1,29 +1,39 @@
 <div id="cart-section">
-    @if(count($cart) > 0)
+    @if (count($cart) > 0)
         <ul>
             @foreach ($cart as $item)
-            <li class="cart-item" data-id="{{ $item['id'] }}">
-                <div class="item-info">
-                    <span class="item-name">{{ $item['name'] }}</span>
-            
-                    <div class="qty-control">
-                        <button onclick="updateQuantity({{ $item['id'] }}, -1)">-</button>
-                        <input type="number" min="1" value="{{ $item['quantity'] }}" readonly id="qty-{{ $item['id'] }}">
-                        <button onclick="updateQuantity({{ $item['id'] }}, 1)">+</button>
-                        <span>x Rp {{ number_format($item['price'], 0, ',', '.') }}</span>
+                <li class="cart-item" data-id="{{ $item['id'] }}">
+                    <div class="item-info">
+
+                        {{-- Tambahkan gambar produk di sini --}}
+                        @if (!empty($item['image']))
+                            <img src="{{ asset('storage/' . $item['image']) }}" alt="{{ $item['name'] }}"
+                                style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">
+                        @endif
+
+                        <span class="item-name">{{ $item['name'] }}</span>
+
+                        <div class="qty-control">
+                            <button onclick="updateQuantity({{ $item['id'] }}, -1)">-</button>
+                            <input type="number" min="1" value="{{ $item['quantity'] }}" readonly
+                                id="qty-{{ $item['id'] }}">
+                            <button onclick="updateQuantity({{ $item['id'] }}, 1)">+</button>
+                            <span>x Rp {{ number_format($item['price'], 0, ',', '.') }}</span>
+                        </div>
+
+                        <div class="item-total">
+                            Total: Rp <span
+                                id="total-{{ $item['id'] }}">{{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}</span>
+                        </div>
+
+                        <input type="text" name="notes[{{ $item['id'] }}]" value="{{ $item['note'] ?? '' }}"
+                            placeholder="Tulis catatan untuk menu ini">
                     </div>
-            
-                    <div class="item-total">
-                        Total: Rp <span id="total-{{ $item['id'] }}">{{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}</span>
-                    </div>
-                    <input type="text" name="notes[{{ $item['id'] }}]" value="{{ $item['note'] ?? '' }}" placeholder="Tulis catatan untuk menu ini">
-                </div>
-            
-                <button class="btn-delete" onclick="removeItem({{ $item['id'] }})">
-                    🗑 Delete
-                </button>
-            </li>
-                      
+
+                    <button class="btn-delete" onclick="removeItem({{ $item['id'] }})">
+                        🗑 Delete
+                    </button>
+                </li>
             @endforeach
         </ul>
 
