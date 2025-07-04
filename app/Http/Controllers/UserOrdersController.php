@@ -20,7 +20,10 @@ class UserOrdersController extends Controller
 
     public function show($id)
     {
-        $order = Order::with('items.product')->where('user_id', Auth::id())->findOrFail($id);
+        $order = Order::with([
+            'items.product',
+            'items.addons' // <--- Ini dia tambahan pentingnya
+        ])->where('user_id', Auth::id())->findOrFail($id);
 
         return response()->json($order);
     }
