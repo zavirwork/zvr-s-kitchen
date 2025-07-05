@@ -54,8 +54,14 @@
             padding: 2rem;
             width: 90%;
             max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
             border-radius: 8px;
             position: relative;
+        }
+
+        body.modal-open {
+            overflow: hidden;
         }
 
         .close-btn {
@@ -227,6 +233,22 @@
         .btn-delete:hover {
             background-color: #c0392b;
         }
+
+        .card-banner {
+            width: 300px;
+            height: 300px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-banner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
     </style>
 </head>
 
@@ -367,7 +389,6 @@
                                         style="text-decoration: none; color: inherit;">
                                         <div class="card-banner">
                                             <img src="{{ asset('storage/' . $item->images[0]->path) }}"
-                                                width="300" height="300" loading="lazy"
                                                 alt="{{ $item->name }}" class="w-100">
                                         </div>
                                     </a>
@@ -614,6 +635,8 @@
     {{-- Opern cart modal --}}
     <script>
         const checkoutUrl = "{{ route('checkout.index') }}";
+        document.body.classList.add('modal-open');
+        document.body.classList.remove('modal-open');
 
         function openCartModal() {
             const modal = document.getElementById('cartModal');
