@@ -27,12 +27,15 @@ use Illuminate\Http\Request;
 
 Route::get('/', function (Request $request) {
     $type = $request->query('type');
+
     $products = $type
-        ? \App\Models\Products::where('type', $type)->get()
-        : \App\Models\Products::all();
+        ? \App\Models\Products::where('type', $type)->where('stock', '>', 0)->get()
+        : \App\Models\Products::where('stock', '>', 0)->get();
+
     $testimoni = \App\Models\Rating::latest()->paginate(5);
     return view('welcome', compact('products', 'type', 'testimoni'));
 });
+
 
 Auth::routes();
 
@@ -77,8 +80,6 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
         Route::put('/{addon}', [AddonController::class, 'update'])->name('admin.addons.update');
         Route::delete('/{addon}/delete', [AddonController::class, 'destroy'])->name('admin.addons.destroy');
     });
-
-
 });
 
 // ======================
@@ -114,3 +115,5 @@ Route::post('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout/order', [CheckoutController::class, 'store'])->name('orders.store');
 Route::post('/cart/update-note/{id}', [CartController::class, 'updateNote'])->name('cart.updateNote');
+Route::get('/checkout/payment/{order}', [CheckoutController::class, 'payment'])->name('checkout.payment');
+Route::post('/checkout/payment/{order}', [CheckoutController::class, 'uploadPayment'])->name('checkout.uploadPayment');

@@ -15,6 +15,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Rubik:wght@400;500;600;700&family=Shadows+Into+Light&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
     <style>
         :root {
@@ -235,30 +236,125 @@
                         <form action="{{ route('orders.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
 
-                            <h2 class="section-title">Customer Information</h2>
+                            <div class="step step-1">
+                                <h2 class="section-title">Customer Information</h2>
 
-                            <div class="form-group">
-                                <input type="hidden" name="user_id" required class="input-field"
-                                    value="{{ auth()->check() ? auth()->user()->id : '' }}">
+                                <div class="form-group">
+                                    <input type="hidden" name="user_id" required class="input-field"
+                                        value="{{ auth()->check() ? auth()->user()->id : '' }}">
+                                </div>
+
+                                {{-- Nama --}}
+                                <div class="form-group">
+                                    <label for="customer_name">Full Name</label>
+                                    <input type="text" name="customer_name" required class="input-field"
+                                        value="{{ auth()->check() ? auth()->user()->name : '' }}"
+                                        placeholder="John Doe">
+                                </div>
+
+                                {{-- WhatsApp --}}
+                                <div class="form-group">
+                                    <label for="customer_whatsapp">WhatsApp Number</label>
+                                    <input type="text" name="customer_whatsapp" required class="input-field"
+                                        value="{{ auth()->check() ? auth()->user()->user_whatsapp : '' }}"
+                                        placeholder="628xxxxxxxxxx">
+                                </div>
+
+                                {{-- Lokasi --}}
+                                <div class="form-group">
+                                    <label for="customer_location">Your Location</label>
+                                    <div id="map" style="height: 400px; width: 100%; margin-top: 1rem;"></div>
+                                    <br>
+                                    <input type="text" id="customer_location" readonly name="customer_location"
+                                        class="input-field location-loading" required
+                                        value="Detecting your location...">
+                                </div>
+
+                                {{-- Detail Lokasi --}}
+                                <div class="form-group">
+                                    <label for="location_detail">Location Detail</label>
+                                    <textarea name="location_detail" rows="3" class="input-field" placeholder="Your location detail"></textarea>
+                                </div>
+
+                                {{-- Catatan --}}
+                                <div class="form-group">
+                                    <label for="message">Special Notes (optional)</label>
+                                    <textarea name="message" rows="3" class="input-field" placeholder="Any special requests or delivery instructions"></textarea>
+                                </div>
+
+                                <div class="divider"></div>
+
+                                <h2 class="section-title">Order Summary</h2>
+
+                                @if (count($cart) > 0)
+                                    @foreach ($cart as $index => $item)
+                                        <div class="cart-item">
+                                            {{-- Gambar Produk --}}
+                                            @if (!empty($item['image']))
+                                                <img src="{{ asset('storage/' . $item['image']) }}"
+                                                    alt="{{ $item['name'] }}"
+                                                    style="width: 70px; height: 70px; object-fit: cover; border-radius: 6px; margin-right: 15px;">
+                                            @endif
+
+                                            <div class="item-info">
+                                                <span class="item-name">{{ $item['name'] }}</span>
+                                                <div class="qty-control">
+                                                    <span>Qty: {{ $item['quantity'] }}</span>
+                                                    <span>x Rp {{ number_format($item['price'], 0, ',', '.') }}</span>
+                                                </div>
+                                                @if (!empty($item['note']))
+                                                    <span>Note: {{ $item['note'] }}</span>
+                                                @endif
+
+                                                {{-- ADDON SECTION START --}}
+                                                @php
+                                                    $product = \App\Models\Products::with('addons')->find($item['id']);
+                                                @endphp
+
+                                                @if ($product && $product->addons->count())
+                                                    <div class="addon-wrapper">
+                                                        <strong class="addon-title">Pilih Addon:</strong>
+                                                        @foreach ($product->addons as $addon)
+                                                            <label class="addon-option">
+                                                                <input type="checkbox" class="addon-checkbox"
+                                                                    data-price="{{ $addon->price }}"
+                                                                    data-item-index="{{ $index }}"
+                                                                    name="cart[{{ $index }}][addons][]"
+                                                                    value="{{ $addon->id }}">
+                                                                <span>{{ $addon->name }} (+Rp
+                                                                    {{ number_format($addon->price, 0, ',', '.') }})</span>
+                                                            </label>
+                                                        @endforeach
+                                                    </div>
+                                                @endif
+                                                {{-- ADDON SECTION END --}}
+                                            </div>
+
+                                            <div class="item-total">
+                                                Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}
+                                            </div>
+
+                                            {{-- Hidden Inputs --}}
+                                            <input type="hidden" name="cart[{{ $index }}][product_id]"
+                                                value="{{ $item['id'] }}">
+                                            <input type="hidden" name="cart[{{ $index }}][quantity]"
+                                                value="{{ $item['quantity'] }}">
+                                            <input type="hidden" name="cart[{{ $index }}][price]"
+                                                value="{{ $item['price'] }}">
+                                            <input type="hidden" name="cart[{{ $index }}][note]"
+                                                value="{{ $item['note'] ?? '' }}">
+                                        </div>
+                                    @endforeach
+
+                                    <div class="grand-total">
+                                        Grand Total: <span id="grand-total" data-base-total="{{ $total }}">Rp
+                                            {{ number_format($total, 0, ',', '.') }}</span>
+                                    </div>
+                                @else
+                                    <p>Your cart is empty.</p>
+                                @endif
                             </div>
-
-                            {{-- Nama --}}
-                            <div class="form-group">
-                                <label for="customer_name">Full Name</label>
-                                <input type="text" name="customer_name" required class="input-field"
-                                    value="{{ auth()->check() ? auth()->user()->name : '' }}" placeholder="John Doe">
-                            </div>
-
-                            {{-- WhatsApp --}}
-                            <div class="form-group">
-                                <label for="customer_whatsapp">WhatsApp Number</label>
-                                <input type="text" name="customer_whatsapp" required class="input-field"
-                                    value="{{ auth()->check() ? auth()->user()->user_whatsapp : '' }}"
-                                    placeholder="628xxxxxxxxxx">
-                            </div>
-
-                            {{-- Bukti Transfer --}}
-                            <div class="form-group">
+                            <div class="form-group step step-2" style="display:none;">
                                 <label for="evidence_transfer">Payment Proof</label>
                                 <input type="file" name="evidence_transfer" class="input-field"
                                     accept="image/*,application/pdf" required>
@@ -267,94 +363,13 @@
                                 </div>
                             </div>
 
-                            {{-- Lokasi --}}
-                            <div class="form-group">
-                                <label for="customer_location">Your Location</label>
-                                <input type="text" id="customer_location" readonly name="customer_location"
-                                    class="input-field location-loading" required value="Detecting your location...">
+                            <div class="step-buttons">
+                                <button type="button" class="btn-primary" onclick="nextStep()">Go To
+                                    Payment</button>
+                                <button type="submit" class="btn-primary" style="display:none;">Submit
+                                    Order</button>
                             </div>
 
-                            {{-- Catatan --}}
-                            <div class="form-group">
-                                <label for="message">Special Notes (optional)</label>
-                                <textarea name="message" rows="3" class="input-field" placeholder="Any special requests or delivery instructions"></textarea>
-                            </div>
-
-                            <div class="divider"></div>
-
-                            <h2 class="section-title">Order Summary</h2>
-
-                            @if (count($cart) > 0)
-                                @foreach ($cart as $index => $item)
-                                    <div class="cart-item">
-                                        {{-- Gambar Produk --}}
-                                        @if (!empty($item['image']))
-                                            <img src="{{ asset('storage/' . $item['image']) }}"
-                                                alt="{{ $item['name'] }}"
-                                                style="width: 70px; height: 70px; object-fit: cover; border-radius: 6px; margin-right: 15px;">
-                                        @endif
-
-                                        <div class="item-info">
-                                            <span class="item-name">{{ $item['name'] }}</span>
-                                            <div class="qty-control">
-                                                <span>Qty: {{ $item['quantity'] }}</span>
-                                                <span>x Rp {{ number_format($item['price'], 0, ',', '.') }}</span>
-                                            </div>
-                                            @if (!empty($item['note']))
-                                                <span>Note: {{ $item['note'] }}</span>
-                                            @endif
-
-                                            {{-- ADDON SECTION START --}}
-                                            @php
-                                                $product = \App\Models\Products::with('addons')->find($item['id']);
-                                            @endphp
-
-                                            @if ($product && $product->addons->count())
-                                                <div class="addon-wrapper">
-                                                    <strong class="addon-title">Pilih Add-on:</strong>
-                                                    @foreach ($product->addons as $addon)
-                                                        <label class="addon-option">
-                                                            <input type="checkbox" class="addon-checkbox"
-                                                                data-price="{{ $addon->price }}"
-                                                                data-item-index="{{ $index }}"
-                                                                name="cart[{{ $index }}][addons][]"
-                                                                value="{{ $addon->id }}">
-                                                            <span>{{ $addon->name }} (+Rp
-                                                                {{ number_format($addon->price, 0, ',', '.') }})</span>
-                                                        </label>
-                                                    @endforeach
-                                                </div>
-                                            @endif
-                                            {{-- ADDON SECTION END --}}
-                                        </div>
-
-                                        <div class="item-total">
-                                            Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}
-                                        </div>
-
-                                        {{-- Hidden Inputs --}}
-                                        <input type="hidden" name="cart[{{ $index }}][product_id]"
-                                            value="{{ $item['id'] }}">
-                                        <input type="hidden" name="cart[{{ $index }}][quantity]"
-                                            value="{{ $item['quantity'] }}">
-                                        <input type="hidden" name="cart[{{ $index }}][price]"
-                                            value="{{ $item['price'] }}">
-                                        <input type="hidden" name="cart[{{ $index }}][note]"
-                                            value="{{ $item['note'] ?? '' }}">
-                                    </div>
-                                @endforeach
-
-                                <div class="grand-total">
-                                    Grand Total: <span id="grand-total" data-base-total="{{ $total }}">Rp
-                                        {{ number_format($total, 0, ',', '.') }}</span>
-                                </div>
-                            @else
-                                <p>Your cart is empty.</p>
-                            @endif
-
-                            <button type="submit" class="btn-primary">
-                                Place Order
-                            </button>
                         </form>
                     </div>
                 </div>
@@ -362,9 +377,13 @@
         </article>
     </main>
 
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const locationField = document.getElementById("customer_location");
+            let map; // variabel peta
+            let marker; // marker untuk ditambahkan ke peta
 
             if (navigator.geolocation) {
                 locationField.classList.add('location-loading');
@@ -375,6 +394,19 @@
                     const long = position.coords.longitude.toFixed(7);
                     locationField.value = `${lat}, ${long}`;
                     locationField.classList.remove('location-loading');
+
+                    // Inisialisasi peta
+                    map = L.map('map').setView([lat, long], 15);
+
+                    // Tambahkan tile layer
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; OpenStreetMap contributors'
+                    }).addTo(map);
+
+                    // Tambahkan marker
+                    marker = L.marker([lat, long]).addTo(map)
+                        .bindPopup("Lokasi Anda Sekarang").openPopup();
+
                 }, function(error) {
                     locationField.value = "Location access denied - please enable location services";
                     locationField.classList.remove('location-loading');
@@ -385,6 +417,7 @@
             }
         });
     </script>
+
     <script>
         // Check for flash messages and show alerts
         document.addEventListener('DOMContentLoaded', function() {
@@ -495,6 +528,23 @@
         });
     </script>
 
+    <script>
+        function nextStep() {
+            const step1 = document.querySelector('.step-1');
+            const step2 = document.querySelector('.step-2');
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const nextBtn = document.querySelector('button[onclick="nextStep()"]'); // tombol "Go To Payment"
+
+            step1.style.display = 'none';
+            step2.style.display = 'block';
+
+            // Sembunyikan tombol "Go To Payment"
+            if (nextBtn) nextBtn.style.display = 'none';
+
+            // Tampilkan tombol submit
+            submitBtn.style.display = 'inline-block';
+        }
+    </script>
 </body>
 
 </html>

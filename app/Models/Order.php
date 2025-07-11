@@ -19,6 +19,7 @@ class Order extends Model
         'status',
         'latitude',
         'longitude',
+        'location_detail',
         'user_id',
     ];
 

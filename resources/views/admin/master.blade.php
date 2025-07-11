@@ -132,6 +132,18 @@
                 `width=${width},height=${height},top=${top},left=${left},resizable=yes,scrollbars=yes`);
         }
     </script>
+    <script>
+        function openFonnteWindow() {
+            const url = "https://md.fonnte.com/new/login.php";
+            const width = 800;
+            const height = 600;
+            const left = (screen.width - width) / 2;
+            const top = (screen.height - height) / 2;
+
+            window.open(url, "Fonnte",
+                `width=${width},height=${height},top=${top},left=${left},resizable=yes,scrollbars=yes`);
+        }
+    </script>
 
     @yield('script')
 </body>

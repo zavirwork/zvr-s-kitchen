@@ -65,6 +65,7 @@ class CheckoutController extends Controller
                 'status' => 'pending',
                 'latitude' => trim($lat),
                 'longitude' => trim($long),
+                'location_detail' => $request->location_detail,
                 'evidence_transfer' => $path,
             ]);
 
@@ -73,8 +74,6 @@ class CheckoutController extends Controller
 
             foreach ($cart as $item) {
                 $product = Products::find($item['product_id']);
-
-                // ❌ Bagian pengurangan stok DIHILANGKAN
 
                 $orderItem = OrderItem::create([
                     'order_id' => $order->id,

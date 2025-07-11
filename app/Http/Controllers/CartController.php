@@ -20,18 +20,30 @@ class CartController extends Controller
     public function add(Request $request, $id)
     {
         $product = Products::findOrFail($id);
-        $quantity = $request->input('quantity', 1);
+        $quantityToAdd = $request->input('quantity', 1);
 
         $cart = session()->get('cart', []);
 
+        $existingQty = isset($cart[$id]) ? $cart[$id]['quantity'] : 0;
+        $totalRequestedQty = $existingQty + $quantityToAdd;
+
+        // ❗ Cek stok
+        if ($totalRequestedQty > $product->stock) {
+            return response()->json([
+                'message' => 'Stok tidak mencukupi. Tersisa ' . $product->stock . ' item.',
+                'success' => false,
+            ], 400);
+        }
+
+        // Lanjut menambah ke cart
         if (isset($cart[$id])) {
-            $cart[$id]['quantity'] += $quantity;
+            $cart[$id]['quantity'] = $totalRequestedQty;
         } else {
             $cart[$id] = [
                 'id' => $product->id,
                 'name' => $product->name,
                 'price' => $product->price,
-                'quantity' => $quantity,
+                'quantity' => $quantityToAdd,
                 'image' => $product->images[0]->path ?? null,
                 'note' => '',
             ];
@@ -40,33 +52,44 @@ class CartController extends Controller
         session()->put('cart', $cart);
         return response()->json([
             'message' => 'Success added to cart',
-            'cart_count' => count($cart)
+            'cart_count' => count($cart),
+            'success' => true,
         ]);
     }
 
     public function updateQuantity(Request $request, $id)
     {
         $quantity = $request->input('quantity');
-
         $cart = session()->get('cart', []);
 
-        if (isset($cart[$id])) {
-            $cart[$id]['quantity'] = max(1, $quantity); // Tidak bisa kurang dari 1
-            session(['cart' => $cart]);
+        if (!isset($cart[$id])) {
+            return response()->json(['success' => false, 'message' => 'Produk tidak ditemukan di cart']);
+        }
 
-            $itemTotal = $cart[$id]['quantity'] * $cart[$id]['price'];
-            $cartTotal = array_sum(array_map(fn($i) => $i['quantity'] * $i['price'], $cart));
+        $product = Products::findOrFail($id);
 
+        // ❗ Cek stok
+        if ($quantity > $product->stock) {
             return response()->json([
-                'success' => true,
-                'item_total' => number_format($itemTotal, 0, ',', '.'),
-                'cart_total' => number_format($cartTotal, 0, ',', '.'),
-                'quantity' => $cart[$id]['quantity']
+                'success' => false,
+                'message' => 'Stok tidak mencukupi. Maksimal: ' . $product->stock,
             ]);
         }
 
-        return response()->json(['success' => false], 404);
+        $cart[$id]['quantity'] = max(1, $quantity);
+        session(['cart' => $cart]);
+
+        $itemTotal = $cart[$id]['quantity'] * $cart[$id]['price'];
+        $cartTotal = array_sum(array_map(fn($i) => $i['quantity'] * $i['price'], $cart));
+
+        return response()->json([
+            'success' => true,
+            'item_total' => number_format($itemTotal, 0, ',', '.'),
+            'cart_total' => number_format($cartTotal, 0, ',', '.'),
+            'quantity' => $cart[$id]['quantity'],
+        ]);
     }
+
 
     public function remove($id)
     {

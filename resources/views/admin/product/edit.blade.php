@@ -51,7 +51,7 @@
 
                                 <div class="col-12 mb-4">
                                     <label class="form-label">Image (Upload new if replacing)</label>
-                                    <input type="file" name="images[]" class="form-control" multiple>
+                                    <input type="file" name="images[]" class="form-control" multiple accept="image/*">
                                     <small class="text-muted">You can select more than one image</small>
                                 </div>
 
