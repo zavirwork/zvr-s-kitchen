@@ -272,6 +272,7 @@
                         <strong>Customer Name:</strong> ${order.customer_name}<br>
                         <strong>WhatsApp Number:</strong> ${order.customer_whatsapp}<br>
                         <strong>Status:</strong> ${order.status}<br>
+                        <strong>Location Detail:</strong> ${order.location_detail}<br>
                         <strong>Message:</strong><br> ${message}<br>
                     </div>
 
