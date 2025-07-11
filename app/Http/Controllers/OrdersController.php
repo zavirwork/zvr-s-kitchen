@@ -29,15 +29,11 @@ class OrdersController extends Controller
         $order->status = $request->status;
         $order->save();
 
-        // Kurangi stok hanya jika status berubah dari selain 'completed' menjadi 'completed'
-        if ($previousStatus !== 'completed' && $request->status === 'completed') {
+        if ($request->status === 'cancelled' && $previousStatus !== 'cancelled') {
             foreach ($order->items as $item) {
                 $product = $item->product;
                 if ($product) {
-                    $product->stock -= $item->quantity;
-                    if ($product->stock < 0) {
-                        $product->stock = 0; // Hindari stok minus
-                    }
+                    $product->stock += $item->quantity;
                     $product->save();
                 }
             }

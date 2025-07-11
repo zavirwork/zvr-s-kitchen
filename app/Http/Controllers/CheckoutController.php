@@ -84,6 +84,9 @@ class CheckoutController extends Controller
                     'updated_at' => now(),
                 ]);
 
+                $product->stock -= $item['quantity'];
+                $product->save();
+
                 $itemTotal = $product->price * $item['quantity'];
                 $totalPrice += $itemTotal;
                 $messageItems .= "- {$product->name} x {$item['quantity']} @ Rp{$product->price}\n";
@@ -113,17 +116,30 @@ class CheckoutController extends Controller
             $token = config('services.telegram.bot_token');
             $chatId = config('services.telegram.chat_id');
 
+            // Ambil path absolut file dari storage
+            $evidencePath = storage_path('app/public/' . $order->evidence_transfer);
+
+            // Compose caption
+            $mapsLink = "https://www.google.com/maps?q={$order->latitude},{$order->longitude}";
+
             $message = "*New Order Received*\n\n";
             $message .= "Name: {$order->customer_name}\n";
             $message .= "WhatsApp: {$order->customer_whatsapp}\n";
             $message .= "Order ID: #{$order->id}\n";
+            $message .= "Location: [View on Google Maps]($mapsLink)\n";
+            $message .= "Detail: {$order->location_detail}\n\n";
             $message .= "Items:\n" . $messageItems;
             $message .= "\nMessage (Optional):\n{$order->message}";
-            $message .= "\n\n*Grand Total:* Rp{$order->total_price}";
+            $message .= "\n\n*Grand Total:* Rp" . number_format($order->total_price, 0, ',', '.');
 
-            Http::post("https://api.telegram.org/bot{$token}/sendMessage", [
+            // Kirim langsung file sebagai photo
+            Http::attach(
+                'photo',
+                file_get_contents($evidencePath),
+                basename($evidencePath)
+            )->post("https://api.telegram.org/bot{$token}/sendPhoto", [
                 'chat_id' => $chatId,
-                'text' => $message,
+                'caption' => $message,
                 'parse_mode' => 'Markdown'
             ]);
 
