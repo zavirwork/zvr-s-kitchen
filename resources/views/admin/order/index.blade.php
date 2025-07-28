@@ -115,7 +115,9 @@
 
                                                         </li>
                                                         <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
-                                                                data-bs-target="#updateModal{{ $order->id }}">
+                                                                data-bs-target="#updateModal{{ $order->id }}"
+                                                                data-order-id="{{ $order->id }}"
+                                                                data-order-url="{{ route('admin.orders.show', $order->id) }}">
                                                                 Update
                                                             </a></li>
                                                     </ul>
@@ -143,7 +145,7 @@
                                         <!-- Modal Update -->
                                         <div class="modal fade" id="updateModal{{ $order->id }}" tabindex="-1"
                                             aria-labelledby="updateModalLabel{{ $order->id }}" aria-hidden="true">
-                                            <div class="modal-dialog">
+                                            <div class="modal-dialog modal-lg">
                                                 <div class="modal-content">
                                                     <form action="{{ route('admin.orders.update_status', $order->id) }}"
                                                         method="POST">
@@ -161,8 +163,10 @@
                                                             <div class="mb-3">
                                                                 <label for="statusSelect{{ $order->id }}"
                                                                     class="form-label">Status</label>
-                                                                <select class="form-select"
+                                                                <select class="form-select status-select"
                                                                     id="statusSelect{{ $order->id }}" name="status"
+                                                                    data-order-id="{{ $order->id }}"
+                                                                    data-order-url="{{ route('admin.orders.show', $order->id) }}"
                                                                     required>
                                                                     @foreach (['pending', 'confirmed', 'shipped', 'completed', 'cancelled'] as $status)
                                                                         <option value="{{ $status }}"
@@ -171,6 +175,15 @@
                                                                         </option>
                                                                     @endforeach
                                                                 </select>
+                                                            </div>
+                                                            
+                                                            <!-- Order Details Container (hidden by default) -->
+                                                            <div id="orderDetailsContainer{{ $order->id }}" class="mt-4" style="display: none;">
+                                                                <hr>
+                                                                <h6 class="mb-3">Order Details</h6>
+                                                                <div id="orderDetailsContent{{ $order->id }}">
+                                                                    <p>Loading order details...</p>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                         <div class="modal-footer">
@@ -204,6 +217,122 @@
     function formatRupiah(number) {
         return new Intl.NumberFormat('id-ID').format(number);
     }
+
+    // Function to load and display order details in update modal
+    function loadOrderDetailsForUpdate(orderId, url) {
+        const container = document.getElementById(`orderDetailsContainer${orderId}`);
+        const content = document.getElementById(`orderDetailsContent${orderId}`);
+        
+        container.style.display = 'block';
+        content.innerHTML = '<p>Loading order details...</p>';
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(order => {
+                let itemsHtml = '';
+
+                if (order.items && order.items.length > 0) {
+                    order.items.forEach(item => {
+                        const name = item.product ? item.product.name : 'Produk tidak ditemukan';
+                        const price = parseFloat(item.price_at_time);
+                        const qty = item.quantity;
+                        const subtotal = price * qty;
+
+                        // Handle Addons
+                        let addonsHtml = '';
+                        if (item.addons && item.addons.length > 0) {
+                            addonsHtml += '<ul class="mb-0 ps-3">';
+                            item.addons.forEach(addon => {
+                                addonsHtml += `<li>${addon.name} (Rp${formatRupiah(addon.pivot.price_at_time)})</li>`;
+                            });
+                            addonsHtml += '</ul>';
+                        }
+
+                        itemsHtml += `
+                            <tr>
+                                <td>
+                                    ${name}
+                                    ${addonsHtml}
+                                </td>
+                                <td>${qty}</td>
+                                <td>Rp${formatRupiah(price)}</td>
+                                <td>Rp${formatRupiah(subtotal)}</td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    itemsHtml = '<tr><td colspan="4">No items available.</td></tr>';
+                }
+
+                let message = order.message ?? '-';
+                if (message && message !== '-') {
+                    const messageLines = message
+                        .split(';')
+                        .map(line => line.trim())
+                        .filter(line => line.length > 0)
+                        .map(line => `- ${line}`);
+                    
+                    message = messageLines.join('<br>');
+                }
+
+                content.innerHTML = `
+                    <div class="mb-3">
+                        <strong>Message:</strong><br> ${message}
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Qty</th>
+                                    <th>Price</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${itemsHtml}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            })
+            .catch(error => {
+                content.innerHTML = `<p class="text-danger">Error loading details: ${error.message}</p>`;
+            });
+    }
+
+    // Handle status change in update modal
+    document.addEventListener('change', function(event) {
+        if (event.target.classList.contains('status-select')) {
+            const selectedStatus = event.target.value;
+            const orderId = event.target.getAttribute('data-order-id');
+            const orderUrl = event.target.getAttribute('data-order-url');
+            const container = document.getElementById(`orderDetailsContainer${orderId}`);
+            
+            if (selectedStatus === 'shipped') {
+                loadOrderDetailsForUpdate(orderId, orderUrl);
+            } else {
+                container.style.display = 'none';
+            }
+        }
+    });
+
+    // Reset order details when modal is closed
+    document.addEventListener('hidden.bs.modal', function(event) {
+        if (event.target.id.startsWith('updateModal')) {
+            const orderId = event.target.id.replace('updateModal', '');
+            const container = document.getElementById(`orderDetailsContainer${orderId}`);
+            if (container) {
+                container.style.display = 'none';
+            }
+        }
+    });
 
     seeOrderModal.addEventListener('show.bs.modal', function(event) {
         const button = event.relatedTarget;
@@ -303,4 +432,3 @@
     });
 </script>
 @endsection
-
