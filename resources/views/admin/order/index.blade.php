@@ -176,9 +176,10 @@
                                                                     @endforeach
                                                                 </select>
                                                             </div>
-                                                            
+
                                                             <!-- Order Details Container (hidden by default) -->
-                                                            <div id="orderDetailsContainer{{ $order->id }}" class="mt-4" style="display: none;">
+                                                            <div id="orderDetailsContainer{{ $order->id }}"
+                                                                class="mt-4" style="display: none;">
                                                                 <hr>
                                                                 <h6 class="mb-3">Order Details</h6>
                                                                 <div id="orderDetailsContent{{ $order->id }}">
@@ -210,50 +211,188 @@
     </div>
 @endsection
 @section('script')
-<script>
-    const seeOrderModal = document.getElementById('seeOrderModal');
+    <script>
+        const seeOrderModal = document.getElementById('seeOrderModal');
 
-    // Format angka jadi format mata uang Indonesia
-    function formatRupiah(number) {
-        return new Intl.NumberFormat('id-ID').format(number);
-    }
+        // Format angka jadi format mata uang Indonesia
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID').format(number);
+        }
 
-    // Function to load and display order details in update modal
-    function loadOrderDetailsForUpdate(orderId, url) {
-        const container = document.getElementById(`orderDetailsContainer${orderId}`);
-        const content = document.getElementById(`orderDetailsContent${orderId}`);
-        
-        container.style.display = 'block';
-        content.innerHTML = '<p>Loading order details...</p>';
+        // Function to load and display order details in update modal
+        function loadOrderDetailsForUpdate(orderId, url) {
+            const container = document.getElementById(`orderDetailsContainer${orderId}`);
+            const content = document.getElementById(`orderDetailsContent${orderId}`);
+            const updateBtn = document.querySelector(`#updateModal${orderId} .btn-primary`);
 
-        fetch(url)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
+            if (updateBtn) {
+                updateBtn.disabled = true; // disable dulu
+            }
+
+            container.style.display = 'block';
+            content.innerHTML = '<p>Loading order details...</p>';
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(order => {
+                    let itemsHtml = '';
+
+                    if (order.items && order.items.length > 0) {
+                        order.items.forEach((item, index) => {
+                            const name = item.product ? item.product.name : 'Produk tidak ditemukan';
+                            const price = parseFloat(item.price_at_time);
+                            const qty = item.quantity;
+                            const subtotal = price * qty;
+
+                            // Handle Addons
+                            let addonsHtml = '';
+                            if (item.addons && item.addons.length > 0) {
+                                addonsHtml += '<ul class="mb-0 ps-3">';
+                                item.addons.forEach(addon => {
+                                    addonsHtml +=
+                                        `<li>${addon.name} (Rp${formatRupiah(addon.pivot.price_at_time)})</li>`;
+                                });
+                                addonsHtml += '</ul>';
+                            }
+
+                            // Tambahkan checkbox di kolom pertama
+                            itemsHtml += `
+                        <tr>
+                            <td>
+                                <input type="checkbox" class="form-check-input me-2 item-check" 
+                                    id="check-${orderId}-${index}"
+                                    style="outline: 2px solid gray; outline-offset: 2px;">
+                                <label for="check-${orderId}-${index}">${name}</label>
+                                ${addonsHtml}
+                            </td>
+                            <td>${qty}</td>
+                            <td>Rp${formatRupiah(price)}</td>
+                            <td>Rp${formatRupiah(subtotal)}</td>
+                        </tr>
+                    `;
+                        });
+                    } else {
+                        itemsHtml = '<tr><td colspan="4">No items available.</td></tr>';
+                    }
+
+                    let message = order.message ?? '-';
+                    if (message && message !== '-') {
+                        const messageLines = message
+                            .split(';')
+                            .map(line => line.trim())
+                            .filter(line => line.length > 0)
+                            .map(line => `- ${line}`);
+
+                        message = messageLines.join('<br>');
+                    }
+
+                    content.innerHTML = `
+                <div class="mb-3">
+                    <strong>Message:</strong><br> ${message}
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Checklist Product</th>
+                                <th>Qty</th>
+                                <th>Price</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${itemsHtml}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+                    // Aktifkan tombol update kalau semua checkbox dicentang
+                    const checkboxes = content.querySelectorAll('.item-check');
+                    checkboxes.forEach(cb => {
+                        cb.addEventListener('change', () => {
+                            const allChecked = Array.from(checkboxes).every(box => box.checked);
+                            if (updateBtn) {
+                                updateBtn.disabled = !allChecked;
+                            }
+                        });
+                    });
+                })
+                .catch(error => {
+                    content.innerHTML = `<p class="text-danger">Error loading details: ${error.message}</p>`;
+                });
+        }
+
+
+        // Handle status change in update modal
+        document.addEventListener('change', function(event) {
+            if (event.target.classList.contains('status-select')) {
+                const selectedStatus = event.target.value;
+                const orderId = event.target.getAttribute('data-order-id');
+                const orderUrl = event.target.getAttribute('data-order-url');
+                const container = document.getElementById(`orderDetailsContainer${orderId}`);
+
+                if (selectedStatus === 'shipped') {
+                    loadOrderDetailsForUpdate(orderId, orderUrl);
+                } else {
+                    container.style.display = 'none';
                 }
-                return response.json();
-            })
-            .then(order => {
-                let itemsHtml = '';
+            }
+        });
 
-                if (order.items && order.items.length > 0) {
-                    order.items.forEach(item => {
-                        const name = item.product ? item.product.name : 'Produk tidak ditemukan';
-                        const price = parseFloat(item.price_at_time);
-                        const qty = item.quantity;
-                        const subtotal = price * qty;
+        // Reset order details when modal is closed
+        document.addEventListener('hidden.bs.modal', function(event) {
+            if (event.target.id.startsWith('updateModal')) {
+                const orderId = event.target.id.replace('updateModal', '');
+                const container = document.getElementById(`orderDetailsContainer${orderId}`);
+                if (container) {
+                    container.style.display = 'none';
+                }
+            }
+        });
 
-                        // Handle Addons
-                        let addonsHtml = '';
-                        if (item.addons && item.addons.length > 0) {
-                            addonsHtml += '<ul class="mb-0 ps-3">';
-                            item.addons.forEach(addon => {
-                                addonsHtml += `<li>${addon.name} (Rp${formatRupiah(addon.pivot.price_at_time)})</li>`;
-                            });
-                            addonsHtml += '</ul>';
-                        }
+        seeOrderModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const url = button.getAttribute('data-order-url');
+            const content = document.getElementById('orderDetailContent');
 
-                        itemsHtml += `
+            content.innerHTML = '<p>Please wait...</p>';
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(order => {
+                    let itemsHtml = '';
+
+                    if (order.items && order.items.length > 0) {
+                        order.items.forEach(item => {
+                            const name = item.product ? item.product.name : 'Produk tidak ditemukan';
+                            const price = parseFloat(item.price_at_time);
+                            const qty = item.quantity;
+                            const subtotal = price * qty;
+
+                            // Handle Addons
+                            let addonsHtml = '';
+                            if (item.addons && item.addons.length > 0) {
+                                addonsHtml += '<ul class="mb-0 ps-3">';
+                                item.addons.forEach(addon => {
+                                    addonsHtml +=
+                                        `<li>${addon.name} (Rp${formatRupiah(addon.pivot.price_at_time)})</li>`;
+                                });
+                                addonsHtml += '</ul>';
+                            }
+
+                            itemsHtml += `
                             <tr>
                                 <td>
                                     ${name}
@@ -264,138 +403,23 @@
                                 <td>Rp${formatRupiah(subtotal)}</td>
                             </tr>
                         `;
-                    });
-                } else {
-                    itemsHtml = '<tr><td colspan="4">No items available.</td></tr>';
-                }
+                        });
+                    } else {
+                        itemsHtml = '<tr><td colspan="4">No items available.</td></tr>';
+                    }
 
-                let message = order.message ?? '-';
-                if (message && message !== '-') {
-                    const messageLines = message
-                        .split(';')
-                        .map(line => line.trim())
-                        .filter(line => line.length > 0)
-                        .map(line => `- ${line}`);
-                    
-                    message = messageLines.join('<br>');
-                }
+                    let message = order.message ?? '-';
+                    if (message && message !== '-') {
+                        const messageLines = message
+                            .split(';')
+                            .map(line => line.trim())
+                            .filter(line => line.length > 0)
+                            .map(line => `- ${line}`);
 
-                content.innerHTML = `
-                    <div class="mb-3">
-                        <strong>Message:</strong><br> ${message}
-                    </div>
+                        message = messageLines.join('<br>');
+                    }
 
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-sm">
-                            <thead class="bg-light">
-                                <tr>
-                                    <th>Product</th>
-                                    <th>Qty</th>
-                                    <th>Price</th>
-                                    <th>Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${itemsHtml}
-                            </tbody>
-                        </table>
-                    </div>
-                `;
-            })
-            .catch(error => {
-                content.innerHTML = `<p class="text-danger">Error loading details: ${error.message}</p>`;
-            });
-    }
-
-    // Handle status change in update modal
-    document.addEventListener('change', function(event) {
-        if (event.target.classList.contains('status-select')) {
-            const selectedStatus = event.target.value;
-            const orderId = event.target.getAttribute('data-order-id');
-            const orderUrl = event.target.getAttribute('data-order-url');
-            const container = document.getElementById(`orderDetailsContainer${orderId}`);
-            
-            if (selectedStatus === 'shipped') {
-                loadOrderDetailsForUpdate(orderId, orderUrl);
-            } else {
-                container.style.display = 'none';
-            }
-        }
-    });
-
-    // Reset order details when modal is closed
-    document.addEventListener('hidden.bs.modal', function(event) {
-        if (event.target.id.startsWith('updateModal')) {
-            const orderId = event.target.id.replace('updateModal', '');
-            const container = document.getElementById(`orderDetailsContainer${orderId}`);
-            if (container) {
-                container.style.display = 'none';
-            }
-        }
-    });
-
-    seeOrderModal.addEventListener('show.bs.modal', function(event) {
-        const button = event.relatedTarget;
-        const url = button.getAttribute('data-order-url');
-        const content = document.getElementById('orderDetailContent');
-
-        content.innerHTML = '<p>Please wait...</p>';
-
-        fetch(url)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(order => {
-                let itemsHtml = '';
-
-                if (order.items && order.items.length > 0) {
-                    order.items.forEach(item => {
-                        const name = item.product ? item.product.name : 'Produk tidak ditemukan';
-                        const price = parseFloat(item.price_at_time);
-                        const qty = item.quantity;
-                        const subtotal = price * qty;
-
-                        // Handle Addons
-                        let addonsHtml = '';
-                        if (item.addons && item.addons.length > 0) {
-                            addonsHtml += '<ul class="mb-0 ps-3">';
-                            item.addons.forEach(addon => {
-                                addonsHtml += `<li>${addon.name} (Rp${formatRupiah(addon.pivot.price_at_time)})</li>`;
-                            });
-                            addonsHtml += '</ul>';
-                        }
-
-                        itemsHtml += `
-                            <tr>
-                                <td>
-                                    ${name}
-                                    ${addonsHtml}
-                                </td>
-                                <td>${qty}</td>
-                                <td>Rp${formatRupiah(price)}</td>
-                                <td>Rp${formatRupiah(subtotal)}</td>
-                            </tr>
-                        `;
-                    });
-                } else {
-                    itemsHtml = '<tr><td colspan="4">No items available.</td></tr>';
-                }
-
-                let message = order.message ?? '-';
-                if (message && message !== '-') {
-                    const messageLines = message
-                        .split(';')
-                        .map(line => line.trim())
-                        .filter(line => line.length > 0)
-                        .map(line => `- ${line}`);
-                    
-                    message = messageLines.join('<br>');
-                }
-
-                content.innerHTML = `
+                    content.innerHTML = `
                     <div class="mb-3">
                         <strong>Order ID:</strong> #${order.id}<br>
                         <strong>Customer Name:</strong> ${order.customer_name}<br>
@@ -425,10 +449,10 @@
                         <strong>Total:</strong> Rp${formatRupiah(order.total_price)}
                     </div>
                 `;
-            })
-            .catch(error => {
-                content.innerHTML = `<p class="text-danger">Something went wrong: ${error.message}</p>`;
-            });
-    });
-</script>
+                })
+                .catch(error => {
+                    content.innerHTML = `<p class="text-danger">Something went wrong: ${error.message}</p>`;
+                });
+        });
+    </script>
 @endsection
